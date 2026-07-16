@@ -1,0 +1,11 @@
+{
+  "name": "cost-tracker-for-simpli",
+  "version": "0.1.0",
+  "description": "Estimate and track what it costs to run Simpli Studio Pages each month — videos, images, and animations — including the plan video-minute cap, your fal / ElevenLabs / Fish.audio key spend, and fixed tools. Opens a friendly setup walkthrough and a plug-and-play cost dashboard. Unofficial, community-made; not affiliated with Simpli Studio.",
+  "author": {
+    "name": "MIRAJA Design"
+  },
+  "license": "MIT",
+  "keywords": ["simpli", "simpli-studio", "cost", "budget", "faceless", "tiktok"],
+  "homepage": "https://github.com/mirajadesign/community-tools-for-simpli"
+}

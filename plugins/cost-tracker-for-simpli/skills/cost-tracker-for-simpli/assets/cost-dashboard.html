@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cost Tracker for Simpli</title>
+<style>
+  :root{ color-scheme: light;
+    --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --muted:#6b6862; --line:#e7e4de;
+    --accent:#0369a1; --accent-soft:#e6f0f7; --warn:#b45309; --warn-soft:#fdf1e2;
+    --ok:#15803d; --ok-soft:#e9f5ec; --danger:#b91c1c; --danger-soft:#fdeaea; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:1.45; }
+  .wrap{ max-width:1080px; margin:0 auto; padding:20px 18px 60px; }
+  header.top{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  h1{ font-size:20px; margin:0; letter-spacing:-0.01em; }
+  .sub{ color:var(--muted); font-size:12.5px; }
+  a{ color:var(--accent); } a.btnlink{ cursor:pointer; }
+  section.block{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px 16px 16px; margin-bottom:14px; }
+  .block h2{ font-size:14px; margin:14px 2px 6px; display:flex; align-items:center; gap:8px; }
+  .block .blurb{ color:var(--muted); font-size:12px; margin:0 2px 10px; }
+  .step{ display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:700; margin-right:2px; }
+  .pill{ background:var(--accent-soft); color:var(--accent); font-size:10.5px; font-weight:600; padding:1px 8px; border-radius:99px; }
+
+  /* Total hero */
+  .hero{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; margin:16px 0 14px; }
+  .hero .lead{ font-size:14px; color:var(--muted); }
+  .hero .lead select{ font:inherit; font-size:14px; font-weight:650; color:var(--ink); padding:2px 6px; border:1px solid var(--line); border-radius:7px; background:#fff; }
+  .hero .total{ font-size:38px; font-weight:700; letter-spacing:-0.02em; margin:4px 0 2px; }
+  .hero .total small{ font-size:16px; font-weight:500; color:var(--muted); }
+  .hero .mins{ color:var(--muted); font-size:12.5px; }
+  .groups{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 4px; }
+  @media (max-width:640px){ .groups{ grid-template-columns:1fr; } }
+  .g{ border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .g .gl{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em; }
+  .g .gv{ font-size:20px; font-weight:650; margin-top:2px; }
+  .g .gd{ font-size:11px; color:var(--muted); margin-top:2px; }
+  .breakrow{ display:flex; justify-content:space-between; padding:4px 2px; border-top:1px solid var(--line); font-size:13px; }
+  .breakrow.grand{ font-weight:700; border-top:2px solid var(--line); font-size:14px; }
+  .breakrow .bl{ color:var(--ink); } .breakrow .bl.sub{ color:var(--muted); padding-left:12px; }
+  details.brk{ margin-top:10px; } details.brk summary{ color:var(--accent); font-size:12.5px; cursor:pointer; }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .tw{ overflow-x:auto; }
+  th,td{ text-align:right; padding:6px 5px; border-top:1px solid var(--line); white-space:nowrap; }
+  th{ color:var(--muted); font-weight:600; font-size:9.5px; text-transform:uppercase; letter-spacing:0.01em; border-top:none; }
+  td.l,th.l{ text-align:left; }
+  .totrow td{ font-weight:650; border-top:2px solid var(--line); }
+  input.cell{ width:46px; padding:3px 4px; border:1px solid var(--line); border-radius:6px; font:inherit; font-size:12.5px; text-align:right; }
+  input.name{ width:140px; text-align:left; }
+  select.cell{ font:inherit; font-size:12px; padding:2px 4px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  .x{ color:var(--danger); cursor:pointer; font-weight:700; padding:0 4px; }
+  button.act{ padding:5px 11px; border:1px solid var(--line); background:var(--accent-soft); color:var(--accent); border-radius:7px; font:inherit; font-size:12.5px; cursor:pointer; }
+  button.ghost{ background:var(--card); color:var(--muted); }
+  button.big{ padding:9px 18px; font-size:14px; font-weight:600; border:none; background:var(--accent); color:#fff; border-radius:9px; cursor:pointer; }
+  .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:6px 2px; }
+  .assump{ display:flex; gap:14px 16px; flex-wrap:wrap; color:var(--muted); font-size:12px; align-items:center; margin:2px 2px 8px; }
+  .assump label{ display:inline-flex; gap:5px; align-items:center; }
+  .assump input{ width:64px; padding:3px 5px; border:1px solid var(--line); border-radius:6px; font:inherit; font-size:12px; text-align:right; }
+  details.adv{ margin:6px 2px; } details.adv > summary{ cursor:pointer; color:var(--accent); font-size:12.5px; }
+  .callout{ border-radius:10px; padding:11px 13px; margin:10px 2px 2px; font-size:13px; }
+  .callout.warn{ background:var(--warn-soft); color:#7c3a06; } .callout.ok{ background:var(--ok-soft); color:#145a2c; }
+  .callout b{ font-weight:700; }
+  .foot{ color:var(--muted); font-size:11.5px; margin-top:8px; text-align:center; }
+  .about{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:6px 16px; margin:14px 0; }
+  .about > summary{ cursor:pointer; font-size:13px; font-weight:600; color:var(--accent); padding:8px 0; }
+  .about .aboutbody{ font-size:12.5px; color:var(--muted); padding-bottom:8px; }
+  .about .aboutbody p{ margin:8px 0; } .about .aboutbody b{ color:var(--ink); }
+  @media print {
+    .wiz-back{ display:none !important; }
+    button, .controls, #open-wiz, #export-pdf, .x, .assump, details.adv > summary { display:none !important; }
+    body{ background:#fff; } .wrap{ padding:0; }
+    input, select{ border:none !important; -webkit-appearance:none; appearance:none; padding-left:0 !important; }
+    section.block, .hero, .about{ break-inside:avoid; box-shadow:none; }
+    .about, details.adv { display:none !important; }
+  }
+
+  /* Wizard */
+  .wiz-back{ position:fixed; inset:0; background:rgba(28,27,25,0.45); display:none; align-items:flex-start; justify-content:center; padding:36px 16px; z-index:50; overflow:auto; }
+  .wiz-back.on{ display:flex; }
+  .wiz{ background:var(--card); border-radius:14px; max-width:560px; width:100%; padding:22px 22px 18px; box-shadow:0 14px 40px rgba(0,0,0,0.18); }
+  .wiz h3{ margin:0 0 3px; font-size:18px; }
+  .wiz p.q{ color:var(--muted); font-size:13px; margin:0 0 14px; }
+  .wiz .prog{ font-size:11.5px; color:var(--muted); margin-bottom:10px; letter-spacing:0.02em; }
+  .planpick{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  @media (max-width:520px){ .planpick{ grid-template-columns:1fr; } }
+  .planbtn{ border:2px solid var(--line); border-radius:11px; padding:12px; text-align:left; cursor:pointer; background:#fff; position:relative; }
+  .rec-badge{ position:absolute; top:-9px; right:12px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; padding:2px 9px; border-radius:99px; letter-spacing:0.02em; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
+  .planbtn.sel{ border-color:var(--accent); background:var(--accent-soft); }
+  .planbtn .pn{ font-weight:650; } .planbtn .pp{ font-size:18px; font-weight:700; margin:3px 0; } .planbtn .pm{ font-size:11.5px; color:var(--muted); }
+  #wiz-pages{ display:grid; grid-template-columns:1fr 140px 162px 22px; gap:8px; align-items:center; }
+  .wlabels{ display:grid; grid-template-columns:1fr 140px 162px 22px; gap:8px; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.02em; margin-bottom:4px; }
+  .wrow{ display:contents; }
+  .wrow > input, .wrow > select{ font:inherit; font-size:13px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:#fff; width:100%; }
+  .wrow .pd{ display:flex; gap:5px; align-items:center; color:var(--muted); font-size:11.5px; }
+  .wrow .pd input{ font:inherit; font-size:13px; padding:6px 6px; border:1px solid var(--line); border-radius:8px; background:#fff; width:42px; }
+  .wrow .submeta{ font-size:11.5px; color:var(--muted); align-self:center; }
+  .wiz .cost-grid{ display:grid; grid-template-columns:max-content max-content; align-items:center; gap:11px 18px; margin:8px 0 4px; font-size:13px; }
+  .wiz .cost-grid .fieldrow{ display:contents; }
+  .wiz .cost-grid .amt{ white-space:nowrap; }
+  .wiz .cost-grid .amt input{ margin:0 6px; }
+  .wiz .cost-grid input[type=number]{ width:90px; font:inherit; padding:6px 8px; border:1px solid var(--line); border-radius:8px; }
+  .wiz .cost-grid input[type=text]{ width:100%; font:inherit; padding:6px 8px; border:1px solid var(--line); border-radius:8px; }
+  .wiz .nav{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; gap:10px; }
+  .wiz .big-total{ font-size:30px; font-weight:700; margin:6px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Cost Tracker for Simpli</h1>
+      <div class="sub">What your Simpli Studio setup really costs each month — everything included.</div>
+    </div>
+    <div style="display:flex; gap:12px; align-items:center">
+      <button class="act" id="export-pdf">⬇ Export PDF</button>
+      <a class="btnlink" id="open-wiz" style="font-size:12.5px">↺ Setup walkthrough</a>
+    </div>
+  </header>
+
+  <details class="about"><summary>❓ What is this? Is my data private?</summary>
+    <div class="aboutbody">
+      <p><b>What it is:</b> a free calculator to estimate and track what your Simpli Studio setup costs each month — the plan, your generation keys, and any other tools.</p>
+      <p><b>Does it take payment info?</b> No. There are no accounts, no logins, and no credit cards, and nothing is ever charged.</p>
+      <p><b>Where does my data go?</b> Nowhere. Everything runs in your own browser and is saved only on your device. Nothing is sent to us or anyone else — clearing your browser data clears it.</p>
+      <p><b>What is “Track actual spend”?</b> An optional place to type the numbers shown on your Simpli <b>Plan &amp; Billing</b> page, just to compare reality against the estimate. It does not connect to Simpli and takes no payment details.</p>
+      <p><b>Why can a video cost about $0?</b> In Simpli a video is built from images, so your fal key pays for the <b>images</b>; stitching them into the finished video is essentially free on your key (it draws on your plan’s video-minutes instead). That’s why this tool prices a video by the images it uses — set <b>Images/vid</b> and the cost follows.</p>
+      <p><b>Is this official?</b> No — it’s unofficial and community-made, not affiliated with, endorsed by, or released by Simpli Studio.</p>
+    </div>
+  </details>
+
+  <!-- TOTAL first -->
+  <div class="hero" id="hero"></div>
+
+  <!-- Pages -->
+  <section class="block">
+    <h2><span class="step">1</span> Your Pages <span class="pill">what you make</span></h2>
+    <p class="blurb">A <b>Page</b> is one brand/account in Simpli (it shows in your Page switcher). Add a row per Page and set what it makes each day: narrated <b>videos</b>, static <b>image</b> posts / banners, and <b>animations</b>. Videos use your plan's monthly minute cap; images and animations run on your fal key only. A video’s dollar cost is really the images it’s built from (its frames) plus voice, so a video can read ~$0 on its own while the images it uses carry the spend.</p>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="l">Page</th><th>Type</th><th>Qual</th>
+        <th>Vid/day</th><th>Vid&nbsp;s</th><th>Img/vid</th>
+        <th>Img/day</th><th>Anim/day</th><th>Anim&nbsp;s</th>
+        <th>Min/mo</th><th>Cost/mo</th><th></th>
+      </tr></thead>
+      <tbody id="est-body"></tbody><tfoot id="est-foot"></tfoot>
+    </table></div>
+    <div class="controls"><button class="act" id="add-pg">+ Add Page</button><button class="act ghost" id="reset">Reset to defaults</button></div>
+  </section>
+
+  <!-- Other monthly costs -->
+  <section class="block">
+    <h2><span class="step">2</span> Other monthly costs <span class="pill">don't forget these</span></h2>
+    <p class="blurb">Flat monthly costs beyond Simpli, so the total is honest. Fill in what you actually pay — leave the rest at $0.</p>
+    <div class="tw"><table><thead><tr><th class="l">Item</th><th>$/mo</th><th></th></tr></thead><tbody id="fixed-body"></tbody></table></div>
+    <div class="controls"><button class="act" id="add-fixed">+ Add cost</button></div>
+  </section>
+
+  <!-- Advanced -->
+  <section class="block">
+    <h2><span class="step">3</span> Advanced settings <span class="pill">optional</span></h2>
+    <p class="blurb">Simpli's plans, top-up prices, and the per-item costs your keys charge. These have sensible defaults — only touch them if your own costs differ.</p>
+    <details class="adv"><summary>Cost assumptions (image / voice / animation)</summary>
+      <div class="assump" id="assump"></div>
+    </details>
+    <details class="adv"><summary>Simpli plans (price + included video minutes)</summary>
+      <div class="tw"><table><thead><tr><th class="l">Plan</th><th>$/mo</th><th>Included video min</th><th>Animation?</th><th>Auto?</th><th>Current?</th><th></th></tr></thead><tbody id="plans-body"></tbody></table></div>
+      <div class="controls"><button class="act" id="add-plan">+ Add plan</button></div>
+    </details>
+    <details class="adv"><summary>Top-up minute tiers</summary>
+      <div class="tw"><table><thead><tr><th class="l">Label</th><th>Minutes</th><th>Price</th><th></th></tr></thead><tbody id="topup-body"></tbody></table></div>
+      <div class="controls"><button class="act" id="add-topup">+ Add tier</button></div>
+    </details>
+  </section>
+
+  <!-- Actuals -->
+  <section class="block">
+    <h2>Track actual spend <span class="pill">optional</span></h2>
+    <p class="blurb">Optional — check the estimate against reality using your <b>Simpli Studio Plan &amp; Billing</b> page. This only covers your Simpli spend (minutes + key spend); your Pages and other tools above are always set by hand.</p>
+    <div id="actuals-callout"></div>
+    <div class="assump" id="actuals-top"></div>
+    <details class="adv"><summary>Spend by provider (this month / today)</summary>
+      <div class="tw"><table><thead><tr><th class="l">Provider</th><th>This month $</th><th>Today $</th><th></th></tr></thead><tbody id="prov-body"></tbody></table></div>
+      <div class="controls"><button class="act" id="add-prov">+ Add provider</button></div>
+    </details>
+    <details class="adv"><summary>Spend by Page (this month / today)</summary>
+      <div class="tw"><table><thead><tr><th class="l">Page (Simpli)</th><th>Today $</th><th>Month $</th><th>Projected month-end</th><th></th></tr></thead><tbody id="bypage-body"></tbody></table></div>
+      <div class="controls"><button class="act" id="add-page">+ Add Page</button></div>
+    </details>
+  </section>
+
+  <div class="foot"><b>Unofficial community tool — not affiliated with, endorsed by, or released by Simpli Studio.</b><br>Generation keys (fal / ElevenLabs / Fish.audio) are billed on your own accounts, separate from the Simpli subscription. Simpli meters video-minutes for narrated videos only; images and animations run on your keys. Nothing here leaves your browser.</div>
+</div>
+
+<!-- Setup wizard -->
+<div class="wiz-back" id="wiz-back"><div class="wiz" id="wiz"></div></div>
+
+<script>
+"use strict";
+const NS = "scct_";
+const STRATS = [ {v:"faceless",label:"Faceless · TikTok"}, {v:"social_fb",label:"Social · Facebook"}, {v:"social_ig",label:"Social · Instagram"}, {v:"other",label:"Other"} ];
+const QUAL = [ {v:"good",label:"Good"}, {v:"better",label:"Better"}, {v:"best",label:"Best"} ];
+const D = {
+  plans: [ {name:"Starter",price:19.95,includedMin:45,anim:false,auto:false}, {name:"Automation",price:29.95,includedMin:70,anim:true,auto:true}, {name:"Pro",price:99.95,includedMin:275,anim:true,auto:true} ],
+  current: 1,
+  needsAutomation: true,
+  topups: [ {min:15,price:5.95},{min:30,price:10.95},{min:45,price:15.95},{min:60,price:20.95} ],
+  assump: { imgGood:0.0336, imgBetter:0.07, imgBest:0.15, voicePerVideo:0.10, animCost:0.35, days:30.4, animCountsToCap:false },
+  pages: [
+    { name:"Page A", strategy:"faceless", quality:"good", vids:3, vsec:40, ipv:10, imgs:0, anims:0, asec:5 },
+    { name:"Page B", strategy:"social_fb", quality:"good", vids:0, vsec:40, ipv:10, imgs:3, anims:0, asec:5 }
+  ],
+  fixed: [ {name:"Simpli Community (optional, ~$27/mo)",cost:0}, {name:"Publishing / scheduler (Buffer, Postly, etc.)",cost:0}, {name:"LLM / AI assistant (if you pay for one)",cost:0} ],
+  actuals: { asOf:"", usedMin:0, providers:[ {name:"fal (images / animation)",month:0,today:0}, {name:"ElevenLabs (voice)",month:0,today:0}, {name:"Fish.audio (voice)",month:0,today:0} ], byPage:[] },
+  fillMode: "manual",
+  wizStep: 0,
+  onboarded: false
+};
+let S = loadState();
+
+function loadState(){
+  const s = JSON.parse(JSON.stringify(D));
+  for (const k of Object.keys(D)){ try { const v = JSON.parse(localStorage.getItem(NS+k)); if (v!=null) s[k]=v; } catch(e){} }
+  s.assump = Object.assign({}, D.assump, s.assump||{});
+  return s;
+}
+function save(k){ try { localStorage.setItem(NS+k, JSON.stringify(S[k])); } catch(e){} }
+function resetAll(){ S = JSON.parse(JSON.stringify(D)); Object.keys(S).forEach(save); renderAll(); }
+
+function money(n){ return "$" + (n==null||isNaN(n)?0:n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function n1(n){ return (n==null||isNaN(n)?0:n).toLocaleString(undefined,{maximumFractionDigits:1}); }
+function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function num(v){ return isNaN(+v)?0:+v; }
+function imgCost(q){ return q==="best"?num(S.assump.imgBest) : q==="better"?num(S.assump.imgBetter) : num(S.assump.imgGood); }
+function selHtml(cls,dataAttrs,opts,val){ return '<select class="'+cls+'" '+dataAttrs+'>'+opts.map(o=>'<option value="'+o.v+'"'+(o.v===val?' selected':'')+'>'+esc(o.label)+'</option>').join('')+'</select>'; }
+
+function minTopup(overMin){
+  const M = Math.ceil(Math.max(0, overMin)); if (M<=0) return 0;
+  const memo={0:0};
+  function best(m){ if(m<=0) return 0; if(memo[m]!=null) return memo[m]; let b=Infinity;
+    for(const t of S.topups){ const min=num(t.min); if(min<=0) continue; const r=best(Math.max(0,m-min)); if(r+num(t.price)<b) b=r+num(t.price); }
+    memo[m]=(b===Infinity?0:b); return memo[m]; }
+  return best(M);
+}
+
+function compute(){
+  const A=S.assump, days=num(A.days), animCap=!!A.animCountsToCap;
+  const rows = S.pages.map(pg=>{
+    const vids=num(pg.vids)*days, anims=num(pg.anims)*days, imgPosts=num(pg.imgs)*days;
+    const vmin=vids*num(pg.vsec)/60, amin=anims*num(pg.asec)/60;
+    const capMin=vmin + (animCap?amin:0);
+    const falImages=vids*num(pg.ipv) + imgPosts + anims*2;
+    const fal=falImages*imgCost(pg.quality) + anims*num(A.animCost);
+    const voice=vids*num(A.voicePerVideo);
+    return { name:pg.name, capMin, fal, voice, keys:fal+voice };
+  });
+  const totCap=rows.reduce((s,r)=>s+r.capMin,0), totFal=rows.reduce((s,r)=>s+r.fal,0), totVoice=rows.reduce((s,r)=>s+r.voice,0);
+  const totKeys=totFal+totVoice, totFixed=S.fixed.reduce((s,f)=>s+num(f.cost),0);
+  const reqAnim=rows.some((r,i)=>num(S.pages[i].anims)>0);
+  const reqAuto=!!S.needsAutomation;
+  const plans=S.plans.map((p,i)=>{ const top=minTopup(totCap-num(p.includedMin)); const anim=!!p.anim, auto=!!p.auto; const eligible=(anim||!reqAnim)&&(auto||!reqAuto); return {i,name:p.name,price:num(p.price),includedMin:num(p.includedMin),anim,auto,eligible,top,allIn:num(p.price)+top+totKeys+totFixed}; });
+  const elig=plans.filter(p=>p.eligible), pool=elig.length?elig:plans;
+  let best=pool[0]; pool.forEach(p=>{ if(p.allIn<best.allIn) best=p; });
+  const cur=plans[S.current]||plans[0];
+  const chosenBase=cur.price+cur.top, nP=rows.length||1;
+  rows.forEach(r=>{ const subShare=totCap>0?chosenBase*(r.capMin/totCap):chosenBase/nP; r.total=r.keys+subShare+totFixed/nP; });
+  return { rows, totCap, totFal, totVoice, totKeys, totFixed, plans, best, cur, curTotal:cur.allIn, reqAnim, reqAuto, usesAnim:reqAnim };
+}
+
+/* ---------- HERO (the answer) ---------- */
+function renderHero(){
+  const e=compute();
+  const cur=e.cur;
+  const planSel = '<select data-curplan="1">'+S.plans.map((p,i)=>'<option value="'+i+'"'+(i===S.current?" selected":"")+'>'+esc(p.name)+'</option>').join("")+'</select>';
+  const over = Math.max(0, e.totCap - cur.includedMin);
+  const fixedItems = S.fixed.filter(f=>num(f.cost)>0);
+  let brk = '';
+  brk += row("Simpli plan — "+esc(cur.name), money(cur.price));
+  if (cur.top>0) brk += row("Top-up minutes ("+n1(over)+" over cap)", money(cur.top), true);
+  brk += row("fal — images + animation", money(e.totFal), true);
+  brk += row("Voice — ElevenLabs / Fish.audio", money(e.totVoice), true);
+  fixedItems.forEach(f=> brk += row(esc(f.name), money(num(f.cost)), true));
+  brk += '<div class="breakrow grand"><span class="bl">Total per month</span><span>'+money(e.curTotal)+'</span></div>';
+  function row(label,val,sub){ return '<div class="breakrow"><span class="bl'+(sub?' sub':'')+'">'+label+'</span><span>'+val+'</span></div>'; }
+
+  let rec='';
+  if (over>0) rec += '<div class="callout warn" style="margin-top:12px">You’re <b>'+n1(over)+' video-min over</b> the '+esc(cur.name)+' cap ('+cur.includedMin+' min). That’s the <b>'+money(cur.top)+'/mo</b> in top-ups above.</div>';
+  if (e.reqAnim && !cur.anim) rec += '<div class="callout warn" style="margin-top:8px">A Page makes <b>animations</b>, which need the <b>Automation</b> or <b>Pro</b> plan — your current '+esc(cur.name)+' plan doesn’t include it.</div>';
+  if (e.reqAuto && !cur.auto) rec += '<div class="callout warn" style="margin-top:8px">You’re set to run <b>hands-free automation</b>, which needs the <b>Automation</b> or <b>Pro</b> plan — your current '+esc(cur.name)+' plan doesn’t include it.</div>';
+  if (cur.eligible && e.best.i!==S.current){ const sv=cur.allIn-e.best.allIn; if(sv>0.005) rec += '<div class="callout ok" style="margin-top:8px">💡 The <b>'+esc(e.best.name)+'</b> plan would be cheaper here — about <b>'+money(sv)+'/mo</b> less, and still does everything your Pages need.</div>'; }
+  if (!cur.eligible) rec += '<div class="callout ok" style="margin-top:8px">The cheapest plan that actually covers your setup is <b>'+esc(e.best.name)+'</b> at <b>'+money(e.best.allIn)+'/mo</b>.</div>';
+
+  document.getElementById("hero").innerHTML =
+    '<div class="lead">On the '+planSel+' plan, running '+S.pages.length+' Page'+(S.pages.length===1?'':'s')+', your estimated cost is</div>'+
+    '<div class="total">'+money(e.curTotal)+' <small>/ month</small></div>'+
+    '<div class="mins">'+n1(e.totCap)+' of '+cur.includedMin+' video-minutes used'+(over>0?' · '+n1(over)+' over':'')+'</div>'+
+    '<div class="groups">'+
+      '<div class="g"><div class="gl">Simpli subscription</div><div class="gv">'+money(cur.price+cur.top)+'</div><div class="gd">plan'+(cur.top>0?' + top-ups':'')+'</div></div>'+
+      '<div class="g"><div class="gl">Your keys</div><div class="gv">'+money(e.totKeys)+'</div><div class="gd">fal + voice, your accounts</div></div>'+
+      '<div class="g"><div class="gl">Other tools</div><div class="gv">'+money(e.totFixed)+'</div><div class="gd">Community, scheduler, LLM…</div></div>'+
+    '</div>'+
+    '<details class="brk"><summary>See the full breakdown, line by line</summary><div style="margin-top:8px">'+brk+'</div></details>'+
+    (rec ? '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin:14px 2px 4px;font-weight:600">Recommendation</div>'+rec : '');
+}
+
+/* ---------- Pages table ---------- */
+function renderEstimate(){
+  renderAssump();
+  const e=compute();
+  document.getElementById("est-body").innerHTML = e.rows.map((r,i)=>{
+    const pg=S.pages[i];
+    return `<tr>
+    <td class="l"><input class="cell name" data-k="pages" data-i="${i}" data-f="name" value="${esc(pg.name)}"></td>
+    <td>${selHtml("cell",'data-k="pages" data-i="'+i+'" data-f="strategy"',STRATS,pg.strategy)}</td>
+    <td>${selHtml("cell",'data-k="pages" data-i="'+i+'" data-f="quality"',QUAL,pg.quality)}</td>
+    <td><input class="cell" data-k="pages" data-i="${i}" data-f="vids" type="number" step="0.5" value="${num(pg.vids)}"></td>
+    <td><input class="cell" data-k="pages" data-i="${i}" data-f="vsec" type="number" step="1" value="${num(pg.vsec)}"></td>
+    <td><input class="cell" data-k="pages" data-i="${i}" data-f="ipv" type="number" step="0.5" value="${num(pg.ipv)}"></td>
+    <td><input class="cell" data-k="pages" data-i="${i}" data-f="imgs" type="number" step="0.5" value="${num(pg.imgs)}"></td>
+    <td><input class="cell" data-k="pages" data-i="${i}" data-f="anims" type="number" step="0.5" value="${num(pg.anims)}"></td>
+    <td><input class="cell" data-k="pages" data-i="${i}" data-f="asec" type="number" step="1" value="${num(pg.asec)}"></td>
+    <td>${n1(r.capMin)}</td><td><b>${money(r.total)}</b></td>
+    <td><span class="x" data-del="pages" data-i="${i}">×</span></td></tr>`;
+  }).join("");
+  const gt=e.rows.reduce((s,r)=>s+r.total,0);
+  document.getElementById("est-foot").innerHTML = `<tr class="totrow"><td class="l">All Pages</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>${n1(e.totCap)}</td><td><b>${money(gt)}</b></td><td></td></tr>`;
+  renderHero();
+}
+function renderAssump(){
+  document.getElementById("assump").innerHTML =
+    '<label>Good img $ <input data-k="assump" data-f="imgGood" type="number" step="0.001" value="'+S.assump.imgGood+'"></label>'+
+    '<label>Better $ <input data-k="assump" data-f="imgBetter" type="number" step="0.001" value="'+S.assump.imgBetter+'"></label>'+
+    '<label>Best $ <input data-k="assump" data-f="imgBest" type="number" step="0.001" value="'+S.assump.imgBest+'"></label>'+
+    '<label>Voice $/vid <input data-k="assump" data-f="voicePerVideo" type="number" step="0.01" value="'+S.assump.voicePerVideo+'"></label>'+
+    '<label title="Measured Jul 2026: a Good 5s animation added ~$0.35 fal and 0 cap minutes.">Anim $ each <input data-k="assump" data-f="animCost" type="number" step="0.01" value="'+S.assump.animCost+'"></label>'+
+    '<label>Days/mo <input data-k="assump" data-f="days" type="number" step="0.1" value="'+S.assump.days+'"></label>'+
+    '<label title="Animations run on your fal key, not the minute cap (measured). Toggle on only if your own costs show otherwise."><input data-k="assump" data-f="animCountsToCap" type="checkbox" '+(S.assump.animCountsToCap?"checked":"")+'> count animation toward cap</label>'+
+    '<label title="Hands-free automation (running content on a schedule) needs the Automation or Pro plan. On by default — this tool is for automating creators. Uncheck if you only make content by hand."><input data-need="1" type="checkbox" '+(S.needsAutomation?"checked":"")+'> I use automation</label>';
+}
+function planRows(){
+  document.getElementById("plans-body").innerHTML = S.plans.map((p,i)=>`<tr>
+    <td class="l"><input class="cell name" data-k="plans" data-i="${i}" data-f="name" value="${esc(p.name)}"></td>
+    <td><input class="cell" data-k="plans" data-i="${i}" data-f="price" type="number" step="0.01" value="${num(p.price)}"></td>
+    <td><input class="cell" data-k="plans" data-i="${i}" data-f="includedMin" type="number" step="1" value="${num(p.includedMin)}"></td>
+    <td><input type="checkbox" data-k="plans" data-i="${i}" data-f="anim" ${p.anim?"checked":""}></td>
+    <td><input type="checkbox" data-k="plans" data-i="${i}" data-f="auto" ${p.auto?"checked":""}></td>
+    <td><input type="radio" name="curplan2" data-cur="${i}" ${i===S.current?"checked":""}></td>
+    <td><span class="x" data-del="plans" data-i="${i}">×</span></td></tr>`).join("");
+}
+function topupRows(){
+  document.getElementById("topup-body").innerHTML = S.topups.map((t,i)=>`<tr>
+    <td class="l">+ ${num(t.min)} min</td>
+    <td><input class="cell" data-k="topups" data-i="${i}" data-f="min" type="number" step="1" value="${num(t.min)}"></td>
+    <td><input class="cell" data-k="topups" data-i="${i}" data-f="price" type="number" step="0.01" value="${num(t.price)}"></td>
+    <td><span class="x" data-del="topups" data-i="${i}">×</span></td></tr>`).join("");
+}
+function fixedRows(){
+  document.getElementById("fixed-body").innerHTML = S.fixed.map((f,i)=>`<tr>
+    <td class="l"><input class="cell name" style="width:300px" data-k="fixed" data-i="${i}" data-f="name" value="${esc(f.name)}"></td>
+    <td><input class="cell" data-k="fixed" data-i="${i}" data-f="cost" type="number" step="0.01" value="${num(f.cost)}"></td>
+    <td><span class="x" data-del="fixed" data-i="${i}">×</span></td></tr>`).join("");
+}
+function actualsTop(){
+  document.getElementById("actuals-top").innerHTML =
+    '<label>As of <input data-k="actuals" data-f="asOf" type="date" value="'+esc(S.actuals.asOf)+'" style="width:130px"></label>'+
+    '<label>Video min used <input data-k="actuals" data-f="usedMin" type="number" step="0.1" value="'+num(S.actuals.usedMin)+'"></label>';
+}
+function provRows(){
+  document.getElementById("prov-body").innerHTML = S.actuals.providers.map((p,i)=>`<tr>
+    <td class="l"><input class="cell name" style="width:200px" data-k="providers" data-i="${i}" data-f="name" value="${esc(p.name)}"></td>
+    <td><input class="cell" data-k="providers" data-i="${i}" data-f="month" type="number" step="0.01" value="${num(p.month)}"></td>
+    <td><input class="cell" data-k="providers" data-i="${i}" data-f="today" type="number" step="0.01" value="${num(p.today)}"></td>
+    <td><span class="x" data-del="providers" data-i="${i}">×</span></td></tr>`).join("");
+}
+function byPageRows(){
+  const d=S.actuals.asOf?new Date(S.actuals.asOf+"T12:00:00"):new Date(); const rem=Math.max(0,new Date(d.getFullYear(),d.getMonth()+1,0).getDate()-d.getDate());
+  document.getElementById("bypage-body").innerHTML = S.actuals.byPage.map((p,i)=>{
+    const proj=num(p.month)+num(p.today)*rem;
+    return `<tr><td class="l"><input class="cell name" data-k="byPage" data-i="${i}" data-f="name" value="${esc(p.name)}"></td>
+      <td><input class="cell" data-k="byPage" data-i="${i}" data-f="today" type="number" step="0.01" value="${num(p.today)}"></td>
+      <td><input class="cell" data-k="byPage" data-i="${i}" data-f="month" type="number" step="0.01" value="${num(p.month)}"></td>
+      <td><b>${money(proj)}</b></td><td><span class="x" data-del="byPage" data-i="${i}">×</span></td></tr>`;
+  }).join("");
+}
+function renderActualsMode(){
+  const el=document.getElementById("actuals-callout"); if(!el) return;
+  if (S.fillMode==="assist"){
+    el.innerHTML='<div class="callout ok"><b>Auto-assist with Claude for Chrome</b><br>1. Install and enable the <b><a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn?hl=en-US&amp;utm_source=ext_sidebar" target="_blank" rel="noopener">Claude for Chrome</a></b> extension (Chrome Web Store).<br>2. Open your <b>Simpli Studio Plan &amp; Billing</b> page in a tab.<br>3. Ask Claude: <i>"read my Simpli Plan &amp; Billing page and fill in the cost tracker"</i> — it types your real numbers into the fields below.<br><button class="act" style="margin-top:8px" onclick="copyPrompt()">Copy the ask for Claude</button> <span id="copied" style="font-size:11.5px;color:var(--ok)"></span></div>';
+  } else { el.innerHTML=''; }
+}
+function copyPrompt(){
+  const txt='Open my Simpli Studio Plan & Billing page and fill in this cost tracker’s actual spend: video minutes used, spend by provider (fal, ElevenLabs, Fish.audio), and spend by Page.';
+  try { navigator.clipboard.writeText(txt); const c=document.getElementById("copied"); if(c){ c.textContent=" copied ✓"; setTimeout(()=>c.textContent="",2000); } } catch(e){}
+}
+function renderAll(){ renderEstimate(); planRows(); topupRows(); fixedRows(); actualsTop(); provRows(); byPageRows(); renderActualsMode(); }
+
+/* ---------- events ---------- */
+document.addEventListener("change", ev=>{
+  const t=ev.target; if (!t.dataset) return;
+  if (t.dataset.k){
+    const k=t.dataset.k, f=t.dataset.f, i=t.dataset.i;
+    let val; if (t.type==="checkbox") val=t.checked; else if (t.type==="number") val=t.value===""?0:+t.value; else val=t.value;
+    if (k==="assump"){ S.assump[f]=val; save("assump"); }
+    else if (k==="actuals"){ S.actuals[f]=val; save("actuals"); }
+    else if (k==="providers"){ S.actuals.providers[+i][f]=val; save("actuals"); }
+    else if (k==="byPage"){ S.actuals.byPage[+i][f]=val; save("actuals"); }
+    else if (Array.isArray(S[k])){ S[k][+i][f]=val; save(k); }
+    renderAll();
+  } else if (t.dataset.curplan!=null){ S.current=+t.value; save("current"); renderAll(); }
+  else if (t.dataset.cur!=null){ S.current=+t.dataset.cur; save("current"); renderAll(); }
+  else if (t.dataset.need!=null){ S.needsAutomation=t.checked; save("needsAutomation"); renderAll(); }
+});
+document.addEventListener("click", ev=>{
+  const t=ev.target; if (!t.dataset || t.dataset.del==null) return;
+  const k=t.dataset.del, i=+t.dataset.i;
+  if (k==="providers"){ S.actuals.providers.splice(i,1); save("actuals"); }
+  else if (k==="byPage"){ S.actuals.byPage.splice(i,1); save("actuals"); }
+  else { S[k].splice(i,1); if(k==="plans"&&S.current>=S.plans.length) S.current=0; save(k); if(k==="plans")save("current"); }
+  renderAll();
+});
+document.getElementById("add-pg").onclick=()=>{ S.pages.push({name:"New Page",strategy:"faceless",quality:"good",vids:3,vsec:40,ipv:10,imgs:0,anims:0,asec:5}); save("pages"); renderAll(); };
+document.getElementById("reset").onclick=()=>{ if(confirm("Reset everything to defaults?")) resetAll(); };
+document.getElementById("add-plan").onclick=()=>{ S.plans.push({name:"New plan",price:0,includedMin:0,anim:false}); save("plans"); renderAll(); };
+document.getElementById("add-topup").onclick=()=>{ S.topups.push({min:0,price:0}); save("topups"); renderAll(); };
+document.getElementById("add-fixed").onclick=()=>{ S.fixed.push({name:"New cost",cost:0}); save("fixed"); renderAll(); };
+document.getElementById("add-prov").onclick=()=>{ S.actuals.providers.push({name:"New provider",month:0,today:0}); save("actuals"); renderAll(); };
+document.getElementById("add-page").onclick=()=>{ S.actuals.byPage.push({name:"New Page",today:0,month:0}); save("actuals"); renderAll(); };
+document.getElementById("open-wiz").onclick=()=>openWiz();
+document.getElementById("export-pdf").onclick=()=>window.print();
+document.getElementById("wiz-back").addEventListener("click", e=>{ if(e.target.id==="wiz-back") closeWiz(); });
+
+/* ---------- Onboarding wizard ---------- */
+let W = { step:0, plan:1, pages:[], fixed:{community:false, scheduler:0, llm:0} };
+function openWiz(startStep){
+  const c0 = (S.fixed[0]&&num(S.fixed[0].cost)>0);
+  W = { step:(startStep!=null?startStep:(num(S.wizStep)||0)), fillMode:(S.fillMode||"manual"), plan:S.current,
+    pages:S.pages.map(p=>({ name:p.name, kind:(num(p.imgs)>0&&num(p.vids)===0?"images":(num(p.vids)>0&&num(p.imgs)>0?"mix":"videos")), vids:num(p.vids)||0, imgs:num(p.imgs)||0 })),
+    fixed:{ community:!!c0, communityCost:(c0?num(S.fixed[0].cost):27), scheduler:(S.fixed[1]?num(S.fixed[1].cost):0), llm:(S.fixed[2]?num(S.fixed[2].cost):0), extra:S.fixed.slice(3).map(f=>({name:f.name,cost:num(f.cost)})) } };
+  if (!W.pages.length) W.pages=[{name:"My Page",kind:"videos",vids:3,imgs:0}];
+  document.getElementById("wiz-back").classList.add("on"); renderWiz();
+}
+function closeWiz(){ S.onboarded=true; S.wizStep=W.step; save("onboarded"); save("wizStep"); document.getElementById("wiz-back").classList.remove("on"); }
+function wizTotalPreview(){
+  // build a temp config and compute
+  const backup=JSON.stringify(S.pages), bcur=S.current, bfix=JSON.stringify(S.fixed);
+  applyWiz(true);
+  const e=compute();
+  S.pages=JSON.parse(backup); S.current=bcur; S.fixed=JSON.parse(bfix);
+  return e;
+}
+function applyWiz(preview){
+  S.current = W.plan;
+  S.pages = W.pages.map(p=>{
+    const vids = p.kind==="images"?0 : num(p.vids);
+    const imgs = p.kind==="videos"?0 : num(p.imgs);
+    return { name:p.name||"Page", strategy: p.kind==="images"?"social_fb":"faceless", quality:"good", vids, vsec:40, ipv:10, imgs, anims:0, asec:5 };
+  });
+  if (!S.pages.length) S.pages=[{name:"My Page",strategy:"faceless",quality:"good",vids:3,vsec:40,ipv:10,imgs:0,anims:0,asec:5}];
+  S.fixed = [
+    {name:"Simpli Community (optional)", cost: W.fixed.community?num(W.fixed.communityCost):0},
+    {name:"Publishing / scheduler (Buffer, Postly, etc.)", cost: num(W.fixed.scheduler)},
+    {name:"LLM / AI assistant (if you pay for one)", cost: num(W.fixed.llm)}
+  ].concat((W.fixed.extra||[]).map(x=>({ name:(x.name||"Other cost"), cost:num(x.cost) })));
+  S.fillMode = W.fillMode||"manual";
+  if (!preview){ S.onboarded=true; ["current","pages","fixed","fillMode","onboarded"].forEach(save); }
+}
+function renderWiz(){
+  const el=document.getElementById("wiz");
+  const prog = W.step>=1 && W.step<=4 ? '<div class="prog">Step '+W.step+' of 4</div>' : '';
+  let body='';
+  if (W.step===0){
+    body = '<h3>Let’s add up your total monthly cost</h3><p class="q">A few simple questions, about a minute. You can edit everything afterward, and skip anytime.</p>'+
+      '<div class="nav"><span></span><div style="display:flex;gap:8px"><button class="act ghost" onclick="closeWiz()">Skip</button><button class="big" onclick="wizNext()">Start →</button></div></div>';
+  } else if (W.step===1){
+    body = prog+'<h3>How do you want to fill in your <i>real</i> spend?</h3><p class="q">Two ways to get your actual Simpli spend numbers in. Either way you’ll still set up your Pages and other tools yourself in the next steps — those aren’t on the Plan &amp; Billing page.</p>'+
+      '<div class="planpick" style="grid-template-columns:1fr 1fr">'+
+        '<div class="planbtn '+(W.fillMode==="manual"?'sel':'')+'" onclick="wizMode(\'manual\')"><div class="pn">I’ll enter it manually</div><div class="pm" style="margin-top:5px">Type your spend numbers yourself, or skip them and just use the estimate. Works anywhere, no Claude needed.</div></div>'+
+        '<div class="planbtn '+(W.fillMode==="assist"?'sel':'')+'" onclick="wizMode(\'assist\')"><span class="rec-badge">Recommended</span><div class="pn">Auto-assist with Claude</div><div class="pm" style="margin-top:5px">Needs the <b><a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn?hl=en-US&amp;utm_source=ext_sidebar" target="_blank" rel="noopener" onclick="event.stopPropagation()">Claude for Chrome</a></b> extension, installed and enabled. Then ask Claude to read your <b>Simpli Studio Plan &amp; Billing</b> and fill your real spend. Re-run anytime for fresh numbers.</div></div>'+
+      '</div>'+ wizNav();
+  } else if (W.step===2){
+    body = prog+'<h3>Which Simpli Studio plan are you on?</h3><p class="q">This sets your monthly fee and your included video-minutes.</p>'+
+      '<div class="planpick">'+S.plans.map((p,i)=>'<div class="planbtn '+(W.plan===i?'sel':'')+'" onclick="wizPlan('+i+')"><div class="pn">'+esc(p.name)+'</div><div class="pp">'+money(num(p.price))+'</div><div class="pm">'+num(p.includedMin)+' video-min/mo'+(p.anim?' · animation':'')+'</div></div>').join('')+'</div>'+
+      wizNav();
+  } else if (W.step===3){
+    body = prog+'<h3>What do you make?</h3><p class="q">Add a row for each <b>Page</b> (brand/account) you run. Pick what it mostly posts and roughly how many per day. You can fine-tune later.</p>'+
+      '<div class="wlabels"><span>Page name</span><span>Mostly makes</span><span>Per day</span><span></span></div>'+
+      '<div id="wiz-pages">'+W.pages.map((p,i)=>wizPageRow(p,i)).join('')+'</div>'+
+      '<div class="controls"><button class="act" onclick="wizAddPage()">+ Add Page</button></div>'+
+      wizNav();
+  } else if (W.step===4){
+    body = prog+'<h3>Any other monthly costs?</h3><p class="q">Flat monthly things beyond Simpli, so the total is real. Leave blank if none.</p>'+
+      '<div class="cost-grid">'+
+      '<div class="fieldrow"><label><input type="checkbox" '+(W.fixed.community?'checked':'')+' onchange="W.fixed.community=this.checked; renderWiz()"> Simpli Community membership</label><span class="amt">$<input type="number" step="0.01" '+(W.fixed.community?'':'disabled')+' value="'+(W.fixed.community?num(W.fixed.communityCost):0)+'" onchange="W.fixed.communityCost=+this.value||0"> /mo</span></div>'+
+      '<div class="fieldrow"><span>Publishing / scheduler (Buffer, Postly…)</span><span class="amt">$<input type="number" step="0.01" value="'+num(W.fixed.scheduler)+'" onchange="W.fixed.scheduler=+this.value||0"> /mo</span></div>'+
+      '<div class="fieldrow"><span>LLM / AI subscription (if you pay for one)</span><span class="amt">$<input type="number" step="0.01" value="'+num(W.fixed.llm)+'" onchange="W.fixed.llm=+this.value||0"> /mo</span></div>'+
+      (W.fixed.extra||[]).map((x,xi)=>'<div class="fieldrow"><input type="text" value="'+esc(x.name)+'" placeholder="Other cost name" onchange="W.fixed.extra['+xi+'].name=this.value"><span class="amt">$<input type="number" step="0.01" value="'+num(x.cost)+'" onchange="W.fixed.extra['+xi+'].cost=+this.value||0"> /mo <span class="x" onclick="wizDelExtra('+xi+')">×</span></span></div>').join('')+
+      '</div>'+
+      '<div class="controls"><button class="act" onclick="wizAddExtra()">+ Add another cost</button></div>'+
+      wizNav();
+  } else {
+    const e=wizTotalPreview();
+    const modeLine = W.fillMode==="assist"
+      ? 'Optional next step: open your Simpli Plan &amp; Billing page and ask Claude to fill in your real spend numbers. Nothing is charged — it just checks the estimate against reality.'
+      : 'Optional: type your real spend numbers anytime under “Track actual spend” to compare against this estimate. Nothing is charged, and nothing leaves your browser.';
+    body = '<h3>Here’s your estimate</h3><p class="q">Everything included — Simpli, your keys, and your other tools.</p>'+
+      '<div class="big-total">'+money(e.curTotal)+' <span style="font-size:15px;color:var(--muted)">/ month</span></div>'+
+      '<div style="font-size:12.5px;color:var(--muted)">Simpli '+money(e.cur.price+e.cur.top)+' · your keys '+money(e.totKeys)+' · other tools '+money(e.totFixed)+'</div>'+
+      (e.best.i!==W.plan && (e.cur.allIn-e.best.allIn)>0.005 ? '<div class="callout ok" style="margin-top:10px">💡 The '+esc(e.best.name)+' plan would be about '+money(e.cur.allIn-e.best.allIn)+'/mo cheaper for this.</div>' : '')+
+      '<p class="q" style="margin-top:10px">'+modeLine+'</p>'+
+      '<div class="nav"><button class="act ghost" onclick="wizBack()">← Back</button><button class="big" onclick="wizFinish()">See the full dashboard →</button></div>';
+  }
+  el.innerHTML = '<div style="text-align:right;margin:-8px -4px 0 0"><a class="btnlink" onclick="closeWiz()" title="Close" style="font-size:20px;color:var(--muted);text-decoration:none">×</a></div>' + body;
+}
+function wizMode(m){ W.fillMode=m; renderWiz(); }
+function wizAddExtra(){ W.fixed.extra=W.fixed.extra||[]; W.fixed.extra.push({name:"",cost:0}); renderWiz(); }
+function wizDelExtra(i){ W.fixed.extra.splice(i,1); renderWiz(); }
+function wizNav(){ return '<div class="nav"><button class="act ghost" onclick="wizBack()">← Back</button><button class="big" onclick="wizNext()">Next →</button></div>'; }
+function wizPageRow(p,i){
+  const nm='<input value="'+esc(p.name)+'" placeholder="Page name" onchange="W.pages['+i+'].name=this.value">';
+  const sel='<select onchange="wizKind('+i+',this.value)"><option value="videos"'+(p.kind==="videos"?' selected':'')+'>Videos</option><option value="images"'+(p.kind==="images"?' selected':'')+'>Image posts</option><option value="mix"'+(p.kind==="mix"?' selected':'')+'>A mix</option></select>';
+  const x='<span class="x" onclick="wizDelPage('+i+')">×</span>';
+  if (p.kind==="mix"){
+    const vids='<input type="number" step="0.5" title="videos per day" value="'+num(p.vids)+'" onchange="W.pages['+i+'].vids=+this.value||0">';
+    const imgs='<input type="number" step="0.5" title="image posts per day" value="'+num(p.imgs)+'" onchange="W.pages['+i+'].imgs=+this.value||0">';
+    return '<div class="wrow">'+nm+sel+'<span></span>'+x+
+      '<span class="submeta">↳ videos / day</span><span></span>'+vids+'<span></span>'+
+      '<span class="submeta">↳ images / day</span><span></span>'+imgs+'<span></span></div>';
+  }
+  const field=(p.kind==="images")
+    ? '<input type="number" step="0.5" value="'+num(p.imgs)+'" onchange="W.pages['+i+'].imgs=+this.value||0">'
+    : '<input type="number" step="0.5" value="'+num(p.vids)+'" onchange="W.pages['+i+'].vids=+this.value||0">';
+  return '<div class="wrow">'+nm+sel+field+x+'</div>';
+}
+function wizKind(i,val){ const p=W.pages[i]; if(val==="images"&&num(p.imgs)===0)p.imgs=num(p.vids)||3; if(val==="videos"&&num(p.vids)===0)p.vids=num(p.imgs)||3; if(val==="mix"){ if(num(p.vids)===0)p.vids=3; if(num(p.imgs)===0)p.imgs=3; } p.kind=val; renderWiz(); }
+function wizAddPage(){ W.pages.push({name:"",kind:"videos",vids:3,imgs:0}); renderWiz(); }
+function wizDelPage(i){ W.pages.splice(i,1); if(!W.pages.length) W.pages=[{name:"",kind:"videos",vids:3,imgs:0}]; renderWiz(); }
+function wizPlan(i){ W.plan=i; renderWiz(); }
+function wizNext(){ W.step=Math.min(5,W.step+1); renderWiz(); }
+function wizBack(){ W.step=Math.max(0,W.step-1); renderWiz(); }
+function wizFinish(){ applyWiz(false); closeWiz(); S.wizStep=0; save("wizStep"); renderAll(); }
+
+function init(){
+  renderAll();
+  if (!S.onboarded) openWiz(0);
+}
+init();
+</script>
+</body>
+</html>

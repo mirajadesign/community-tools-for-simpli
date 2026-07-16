@@ -1,0 +1,17 @@
+{
+  "name": "community-tools-for-simpli",
+  "owner": {
+    "name": "MIRAJA Design"
+  },
+  "plugins": [
+    {
+      "name": "cost-tracker-for-simpli",
+      "source": "./plugins/cost-tracker-for-simpli",
+      "description": "What your Simpli Studio setup really costs each month — everything included (videos, images, animations, plan minutes, keys, and fixed tools). Unofficial community tool.",
+      "version": "0.1.0",
+      "author": {
+        "name": "MIRAJA Design"
+      }
+    }
+  ]
+}
