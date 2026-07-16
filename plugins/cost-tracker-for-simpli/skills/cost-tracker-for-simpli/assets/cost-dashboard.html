@@ -119,6 +119,8 @@
     </div>
   </header>
 
+  <div style="font-size:11.5px;color:var(--muted);margin:0 2px 12px">Community Tools for Simpli · <b id="ver-label">v0.1.1</b> · <button id="chk-upd" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;padding:0;text-decoration:underline">Check for updates</button><span id="upd-result"></span></div>
+
   <details class="about"><summary>❓ What is this? Is my data private?</summary>
     <div class="aboutbody">
       <p><b>What it is:</b> a free calculator to estimate and track what your Simpli Studio setup costs each month — the plan, your generation keys, and any other tools.</p>
@@ -428,6 +430,32 @@ document.getElementById("add-prov").onclick=()=>{ S.actuals.providers.push({name
 document.getElementById("add-page").onclick=()=>{ S.actuals.byPage.push({name:"New Page",today:0,month:0}); save("actuals"); renderAll(); };
 document.getElementById("open-wiz").onclick=()=>openWiz();
 document.getElementById("export-pdf").onclick=()=>window.print();
+
+/* ---------- Check for updates ---------- */
+const LOCAL_VERSION="0.1.1";
+const UPDATE_RAW="https://raw.githubusercontent.com/mirajadesign/community-tools-for-simpli/main/plugins/cost-tracker-for-simpli/.claude-plugin/plugin.json";
+const UPDATE_CMD="/plugin marketplace update community-tools-for-simpli";
+const cmpVer=(a,b)=>{const pa=String(a).split("."),pb=String(b).split(".");for(let i=0;i<3;i++){const x=+pa[i]||0,y=+pb[i]||0;if(x>y)return 1;if(x<y)return -1;}return 0;};
+document.getElementById("chk-upd").onclick=()=>{
+  const r=document.getElementById("upd-result");
+  r.textContent=" · checking…";
+  fetch(UPDATE_RAW,{cache:"no-store"}).then(res=>res.json()).then(j=>{
+    const latest=(j&&j.version)||"";
+    if(!latest){ r.textContent=" · couldn’t read the latest version."; return; }
+    const c=cmpVer(latest,LOCAL_VERSION);
+    if(c>0){
+      r.innerHTML=' · <b>update available: '+latest+'</b> (you have '+LOCAL_VERSION+'). '+
+        '<button class="act" id="copy-upd">Copy update command</button>'+
+        (typeof sendPrompt==="function"?' <button class="act" id="ask-upd">Ask Claude to update</button>':'')+
+        '<div class="submeta" style="margin-top:4px">In Claude, run <code>'+UPDATE_CMD+'</code> then reload plugins.</div>';
+      const cp=document.getElementById("copy-upd"); if(cp)cp.onclick=()=>{ if(navigator.clipboard)navigator.clipboard.writeText(UPDATE_CMD); cp.textContent="Copied ✓"; };
+      const ak=document.getElementById("ask-upd"); if(ak)ak.onclick=()=>{ sendPrompt("Please update the Community Tools for Simpli plugin to the latest version: run "+UPDATE_CMD+" and then reload plugins."); };
+    } else if(c===0){ r.textContent=" · you’re on the latest version ("+LOCAL_VERSION+")."; }
+    else { r.textContent=" · you’re ahead of the published version ("+LOCAL_VERSION+" vs "+latest+")."; }
+  }).catch(()=>{
+    r.innerHTML=' · couldn’t reach GitHub. Update manually in Claude: <code>'+UPDATE_CMD+'</code>';
+  });
+};
 document.getElementById("wiz-back").addEventListener("click", e=>{ if(e.target.id==="wiz-back") closeWiz(); });
 
 /* ---------- Onboarding wizard ---------- */

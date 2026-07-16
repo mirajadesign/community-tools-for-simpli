@@ -61,7 +61,7 @@ behind it.
 2. Bump the `version` in **both**
    `plugins/cost-tracker-for-simpli/.claude-plugin/plugin.json` **and** the entry
    in `.claude-plugin/marketplace.json` (semver — e.g. 0.1.0 → 0.1.1 for a fix,
-   0.2.0 for a feature).
+   0.2.0 for a feature). Also bump `LOCAL_VERSION` in the dashboard (`plugins/cost-tracker-for-simpli/skills/cost-tracker-for-simpli/assets/cost-dashboard.html`) and its `v0.1.x` label to match, so the "Check for updates" button compares correctly.
 3. Commit and push to GitHub. Installed users pull it with
    `/plugin marketplace update` (or automatically).
 
