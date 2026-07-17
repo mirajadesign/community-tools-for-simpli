@@ -111,6 +111,13 @@
   .pgcard .mrow label{ flex:1 1 auto; font-size:14px; }
   .pgcard .mrow input.cell{ width:96px; text-align:right; }
   .pgcard .mhint{ font-size:12.5px; color:var(--muted); margin:-2px 0 6px; }
+  .pgcard .lrow{ display:flex; align-items:flex-end; gap:9px 10px; flex-wrap:wrap; padding:8px 0 7px; border-top:1px dashed var(--line); }
+  .pgcard .lrow:first-child{ border-top:none; }
+  .pgcard .lf{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .pgcard .lf > span{ font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.02em; font-weight:700; }
+  .pgcard .lf input.cell{ width:64px; }
+  .pgcard .lmo{ margin-left:auto; font-size:12.5px; color:var(--muted); white-space:nowrap; padding-bottom:6px; }
+  .pgcard .lrow .x{ padding-bottom:4px; }
   .pgcard .pcfoot{ display:flex; gap:8px 16px; flex-wrap:wrap; margin-top:10px; padding-top:8px; border-top:1px solid var(--line); font-size:13.5px; color:var(--muted); }
   .pgcard .pcfoot b{ color:var(--ink); font-weight:650; }
   .about{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px 18px; margin:14px 0; }
@@ -202,7 +209,7 @@
         <button class="hbtn" id="open-wiz">✨ Setup wizard</button>
         <button class="hbtn" id="claude-update">↻ Update dashboard with Claude</button>
       </div>
-      <div class="headbar-right"><b id="ver-label">v0.2.0</b> · <button id="chk-upd" class="linkbtn">Check for updates</button></div>
+      <div class="headbar-right"><b id="ver-label">v0.3.0</b> · <button id="chk-upd" class="linkbtn">Check for updates</button></div>
     </div>
     <div id="upd-result" class="upd-result"></div>
   </div>
@@ -213,7 +220,7 @@
   <!-- Pages -->
   <section class="block">
     <h2><span class="step">1</span> Your Pages <span class="pill">what you make</span></h2>
-    <p class="blurb">A <b>Page</b> is one brand or account in Simpli Studio (it shows in your Page switcher). Add a card for each Page and set what it makes each day. A reel is built from images (about 10 to 12 each), so its cost is really those images plus voice. Image posts, banners, and animations run on your fal key; reels also use your plan's monthly video-minutes. Other ways of making videos, like prompt-to-video or lip-sync, can cost differently.</p>
+    <p class="blurb">A <b>Page</b> is one brand or account in Simpli Studio (it shows in your Page switcher). Add a card for each Page, then list what it makes as <b>content lines</b>: reels built from images, image posts, animations, lip-sync videos, or prompt-to-video. Each line has its own daily count, length, and quality, so one Page can make a 60s reel, two 30s reels, and a Best-quality lip-sync special side by side. Reels, lip-sync, and prompt-to-video use your plan's monthly video-minutes; image posts and animations run on your keys.</p>
     <div id="pages-cards"></div>
     <div class="controls"><button class="act" id="add-pg">+ Add Page</button><button class="act ghost" id="reset">Reset to defaults</button></div>
   </section>
@@ -247,7 +254,7 @@
   <section class="block">
     <h2>Advanced settings <span class="pill">optional</span></h2>
     <p class="blurb">Simpli Studio's plans, top-up prices, and the per-item costs your keys charge. These have sensible defaults, so only touch them if your own costs differ.</p>
-    <details class="adv" data-acc="adv-assump"><summary>Cost assumptions (image / voice / animation)</summary>
+    <details class="adv" data-acc="adv-assump"><summary>Cost assumptions (image / voice / animation / video gen)</summary>
       <div class="assump" id="assump"></div>
     </details>
     <details class="adv" data-acc="adv-plans"><summary>Simpli Studio plans (price + included video minutes)</summary>
@@ -295,6 +302,8 @@
 const NS = "scct_";
 const STRATS = [ {v:"faceless",label:"TikTok"}, {v:"social_fb",label:"Facebook"}, {v:"social_ig",label:"Instagram"}, {v:"other",label:"Other"} ];
 const QUAL = [ {v:"good",label:"Good"}, {v:"better",label:"Better"}, {v:"best",label:"Best"} ];
+const LTYPES = [ {v:"reel",label:"Reel (images to video)"}, {v:"image",label:"Image post"}, {v:"anim",label:"Animation"}, {v:"lipsync",label:"Lip-sync video"}, {v:"p2v",label:"Prompt-to-video"} ];
+const LFIELDS = { reel:{sec:1,imgs:1,qual:1}, image:{imgs:1,qual:1}, anim:{sec:1,qual:1}, lipsync:{sec:1}, p2v:{sec:1} };
 function exportPDF(){
   var framed=false; try{ framed = window.self !== window.top; }catch(e){ framed=true; }
   var hint=document.getElementById("pdf-hint");
@@ -310,7 +319,7 @@ const FAQ_BODY =
   '<p><b>Does it take payment info?</b> No. There are no accounts, no logins, and no credit cards, and nothing is ever charged.</p>'+
   '<p><b>Where does my data go?</b> Nowhere. Everything runs on your own device and is saved only there. Nothing is sent to us or anyone else, and clearing your saved data clears it.</p>'+
   '<p><b>What is “Track actual spend”?</b> An optional place to record the numbers from your Simpli Studio <b>Plan &amp; Billing</b> page so you can compare reality against the estimate. Type them yourself, or let the official <b>Claude for Chrome</b> extension read your billing page and fill them in for you. Either way it takes no payment details and nothing is charged.</p>'+
-  '<p><b>Why can a video cost about $0?</b> The common faceless method builds a video from images, so your fal key pays for the <b>images</b> and stitching them into the finished video is essentially free on your key (it uses your plan’s video-minutes instead). This tool prices that kind of video by the images it uses, so set <b>Images/vid</b> and the cost follows. Other methods, like a straight prompt-to-video or a lip-sync, can cost differently, so adjust the numbers if you use those.</p>'+
+  '<p><b>Why can a video cost about $0?</b> The common faceless method builds a video from images, so your fal key pays for the <b>images</b> and stitching them into the finished video is essentially free on your key (it uses your plan’s video-minutes instead). This tool prices that kind of video by the images it uses, so set the reel line’s images and the cost follows. Prompt-to-video and lip-sync are their own content lines with per-second rates you can tune in Advanced settings.</p>'+
   '<p><b>Is this official?</b> No. It’s an independent, community-made project, not officially affiliated with Simpli Faceless or Simpli Studio. Built by a fellow creator to help.</p>';
 const FAQ_DETAILS = '<details class="about" style="margin:0 0 14px;padding:2px 12px">'+
   '<summary style="padding:6px 0">❓ What is this? Is my data private?</summary>'+
@@ -320,10 +329,10 @@ const D = {
   current: 1,
   needsAutomation: true,
   topups: [ {min:15,price:5.95},{min:30,price:10.95},{min:45,price:15.95},{min:60,price:20.95} ],
-  assump: { imgGood:0.034, imgBetter:0.08, imgBest:0.15, voicePerVideo:0.05, animCost:0.35, days:30.4, animCountsToCap:false },
+  assump: { imgGood:0.034, imgBetter:0.08, imgBest:0.15, voicePerMin:0.075, animPerSec:0.07, lipsyncPerSec:0.05, p2vPerSec:0.15, days:30.4, animCountsToCap:false },
   pages: [
-    { name:"Page A", strategy:"faceless", quality:"good", vids:3, vsec:40, ipv:10, imgs:0, anims:0, asec:5 },
-    { name:"Page B", strategy:"social_fb", quality:"good", vids:0, vsec:40, ipv:10, imgs:3, anims:0, asec:5 }
+    { name:"Page A", strategy:"faceless", lines:[ {type:"reel",count:3,sec:30,imgs:10,quality:"good"} ] },
+    { name:"Page B", strategy:"social_fb", lines:[ {type:"image",count:3,sec:0,imgs:1,quality:"good"} ] }
   ],
   fixed: [ {name:"Simpli Faceless Community (~$27/mo)",cost:0}, {name:"Publishing / scheduler",cost:0}, {name:"AI assistant / LLM",cost:0} ],
   actuals: { asOf:"", usedMin:0, providers:[ {name:"fal (images / animation)",month:0,today:0}, {name:"ElevenLabs (voice)",month:0,today:0}, {name:"Fish.audio (voice)",month:0,today:0} ], byPage:[] },
@@ -332,13 +341,54 @@ const D = {
   onboarded: false
 };
 let S = loadState();
+save("pages"); save("assump"); // persist migrated shapes so the next load starts clean
 
+function migrateAssump(a){
+  // v0.2.x saved voicePerVideo (flat $ per ~40s reel) and animCost (flat $ per ~5s clip).
+  // v0.3.0 scales both by length: voice per minute, animation per second. Derive the
+  // new rates from a customized old value so nobody's numbers silently shift.
+  const out = Object.assign({}, D.assump, a||{});
+  if (a && a.voicePerMin==null && a.voicePerVideo!=null) out.voicePerMin = +(num(a.voicePerVideo)*1.5).toFixed(4);
+  if (a && a.animPerSec==null && a.animCost!=null) out.animPerSec = +(num(a.animCost)/5).toFixed(4);
+  delete out.voicePerVideo; delete out.animCost;
+  return out;
+}
+function normLine(ln){
+  if (!ln || typeof ln!=="object") return null;
+  const t = LFIELDS[ln.type] ? ln.type : "reel";
+  return { type:t, count:Math.max(0,Math.round(num(ln.count))), sec:Math.max(0,Math.round(num(ln.sec))), imgs:Math.max(0,Math.round(num(ln.imgs))), quality:(ln.quality==="better"||ln.quality==="best")?ln.quality:"good" };
+}
+function lineTypeDefaults(ln){
+  // Applied when a line's type changes: keep the count, carry the length over where it
+  // still means the same thing, and reset fields whose meaning differs between types.
+  if (ln.type==="reel"){ if(!num(ln.sec))ln.sec=30; ln.imgs=10; }
+  else if (ln.type==="image"){ ln.sec=0; ln.imgs=1; }
+  else if (ln.type==="anim"){ if(!(num(ln.sec)>0&&num(ln.sec)<=10))ln.sec=5; ln.imgs=0; }
+  else if (ln.type==="lipsync"){ if(!num(ln.sec))ln.sec=30; ln.imgs=0; }
+  else if (ln.type==="p2v"){ if(!num(ln.sec))ln.sec=10; ln.imgs=0; }
+  return ln;
+}
+function migratePage(p){
+  if (!p || typeof p!=="object") return null;
+  if (Array.isArray(p.lines)) return { name:p.name||"Page", strategy:p.strategy||"faceless", lines:p.lines.map(normLine).filter(Boolean) };
+  // v0.2.x shape: one averaged recipe {vids,vsec,ipv,imgs,anims,asec,quality} becomes content lines.
+  const q=(p.quality==="better"||p.quality==="best")?p.quality:"good", lines=[];
+  const vids=Math.max(0,Math.round(num(p.vids))), imgs=Math.max(0,Math.round(num(p.imgs))), anims=Math.max(0,Math.round(num(p.anims)));
+  const vsec=num(p.vsec)>0?Math.round(num(p.vsec)):40, ipv=num(p.ipv)>0?Math.round(num(p.ipv)):10, asec=num(p.asec)>0?Math.round(num(p.asec)):5;
+  if (vids>0) lines.push({type:"reel",count:vids,sec:vsec,imgs:ipv,quality:q});
+  if (imgs>0) lines.push({type:"image",count:imgs,sec:0,imgs:1,quality:q});
+  if (anims>0) lines.push({type:"anim",count:anims,sec:asec,imgs:0,quality:q});
+  if (!lines.length) lines.push({type:"reel",count:0,sec:vsec,imgs:ipv,quality:q});
+  return { name:p.name||"Page", strategy:p.strategy||"faceless", lines };
+}
 function loadState(){
   const s = JSON.parse(JSON.stringify(D));
   for (const k of Object.keys(D)){ try { const v = JSON.parse(localStorage.getItem(NS+k)); if (v!=null) s[k]=v; } catch(e){} }
-  s.assump = Object.assign({}, D.assump, s.assump||{});
+  let rawAssump=null; try { rawAssump = JSON.parse(localStorage.getItem(NS+"assump")); } catch(e){}
+  s.assump = migrateAssump(rawAssump);
   if (Array.isArray(s.plans)) s.plans.forEach(p=>{ if(p && p.name==="Automation") p.name="Plus"; }); // Simpli Studio renamed Automation to Plus (Jul 2026)
-  if (Array.isArray(s.pages)) s.pages.forEach(p=>{ if(p){ p.vids=Math.max(0,Math.round(num(p.vids))); p.imgs=Math.max(0,Math.round(num(p.imgs))); p.anims=Math.max(0,Math.round(num(p.anims))); } }); // videos/images/animations are whole counts
+  s.pages = (Array.isArray(s.pages)?s.pages:D.pages).map(migratePage).filter(Boolean);
+  if (!s.pages.length) s.pages = JSON.parse(JSON.stringify(D.pages));
   return s;
 }
 function save(k){ try { localStorage.setItem(NS+k, JSON.stringify(S[k])); } catch(e){} }
@@ -364,20 +414,30 @@ function minTopup(overMin){
   return best(M);
 }
 
+function lineCost(ln){
+  // One content line's cost per day, split into key spend (fal etc.), voice, and plan cap minutes.
+  // reel: images + voice, burns cap. image post: images only. animation: per-second gen + 2 source
+  // images, cap 0 unless the toggle says otherwise. lip-sync: per-second gen + voice, burns cap.
+  // prompt-to-video: per-second gen, burns cap.
+  const A=S.assump, c=num(ln.count), sec=num(ln.sec), imgP=imgCost(ln.quality);
+  let fal=0, voice=0, cap=0;
+  if (ln.type==="reel"){ fal=c*num(ln.imgs)*imgP; voice=c*num(A.voicePerMin)*sec/60; cap=c*sec/60; }
+  else if (ln.type==="image"){ fal=c*num(ln.imgs)*imgP; }
+  else if (ln.type==="anim"){ fal=c*(num(A.animPerSec)*sec + 2*imgP); cap=A.animCountsToCap? c*sec/60 : 0; }
+  else if (ln.type==="lipsync"){ fal=c*num(A.lipsyncPerSec)*sec; voice=c*num(A.voicePerMin)*sec/60; cap=c*sec/60; }
+  else if (ln.type==="p2v"){ fal=c*num(A.p2vPerSec)*sec; cap=c*sec/60; }
+  return { fal, voice, cap };
+}
 function compute(){
-  const A=S.assump, days=num(A.days), animCap=!!A.animCountsToCap;
+  const A=S.assump, days=num(A.days);
   const rows = S.pages.map(pg=>{
-    const vids=num(pg.vids)*days, anims=num(pg.anims)*days, imgPosts=num(pg.imgs)*days;
-    const vmin=vids*num(pg.vsec)/60, amin=anims*num(pg.asec)/60;
-    const capMin=vmin + (animCap?amin:0);
-    const falImages=vids*num(pg.ipv) + imgPosts + anims*2;
-    const fal=falImages*imgCost(pg.quality) + anims*num(A.animCost);
-    const voice=vids*num(A.voicePerVideo);
+    let fal=0, voice=0, capMin=0;
+    (pg.lines||[]).forEach(ln=>{ const r=lineCost(ln); fal+=r.fal*days; voice+=r.voice*days; capMin+=r.cap*days; });
     return { name:pg.name, capMin, fal, voice, keys:fal+voice };
   });
   const totCap=rows.reduce((s,r)=>s+r.capMin,0), totFal=rows.reduce((s,r)=>s+r.fal,0), totVoice=rows.reduce((s,r)=>s+r.voice,0);
   const totKeys=totFal+totVoice, totFixed=S.fixed.reduce((s,f)=>s+num(f.cost),0);
-  const reqAnim=rows.some((r,i)=>num(S.pages[i].anims)>0);
+  const reqAnim=S.pages.some(pg=>(pg.lines||[]).some(ln=>ln.type==="anim"&&num(ln.count)>0));
   const reqAuto=!!S.needsAutomation;
   const plans=S.plans.map((p,i)=>{ const top=minTopup(totCap-num(p.includedMin)); const anim=!!p.anim, auto=!!p.auto; const eligible=(anim||!reqAnim)&&(auto||!reqAuto); return {i,name:p.name,price:num(p.price),includedMin:num(p.includedMin),anim,auto,eligible,top,allIn:num(p.price)+top+totKeys+totFixed}; });
   const elig=plans.filter(p=>p.eligible), pool=elig.length?elig:plans;
@@ -399,7 +459,7 @@ function renderHero(){
   let brk = '';
   brk += row("Simpli Studio plan: "+esc(cur.name), money(cur.price));
   if (cur.top>0) brk += row("Top-up minutes ("+n1(over)+" over cap)", money(cur.top), true);
-  brk += row("fal: images + animation", money(e.totFal), true);
+  brk += row("fal: images, animation, video gen", money(e.totFal), true);
   brk += row("Voice: ElevenLabs / Fish.audio", money(e.totVoice), true);
   fixedItems.forEach(f=> brk += row(esc(f.name), money(num(f.cost)), true));
   brk += '<div class="breakrow grand"><span class="bl">Total per month</span><span>'+money(e.curTotal)+'</span></div>';
@@ -429,32 +489,39 @@ function renderHero(){
 }
 
 /* ---------- Pages table ---------- */
+function lineRowHTML(ln,pi,li){
+  const f=LFIELDS[ln.type]||{};
+  const dat=(fld)=>'data-k="lines" data-p="'+pi+'" data-i="'+li+'" data-f="'+fld+'"';
+  const numIn=(fld,lab)=>'<label class="lf"><span>'+lab+'</span><input class="cell" '+dat(fld)+' type="number" step="1" min="0" value="'+num(ln[fld])+'"></label>';
+  const per=lineCost(ln), mo=(per.fal+per.voice)*num(S.assump.days);
+  return '<div class="lrow">'+
+    '<label class="lf"><span>content</span>'+selHtml("cell",dat("type"),LTYPES,ln.type)+'</label>'+
+    numIn("count","/ day")+
+    (f.sec? numIn("sec","length (s)"):'')+
+    (f.imgs? numIn("imgs", ln.type==="image"?"images / post":"images / reel"):'')+
+    (f.qual? '<label class="lf"><span>quality</span>'+selHtml("cell",dat("quality"),QUAL,ln.quality)+'</label>':'')+
+    '<span class="lmo" title="Estimated key + voice cost of this line per month">'+money(mo)+'/mo</span>'+
+    '<span class="x" data-del="lines" data-p="'+pi+'" data-i="'+li+'">×</span>'+
+  '</div>';
+}
 function renderEstimate(){
   renderAssump();
   const e=compute();
   document.getElementById("pages-cards").innerHTML = e.rows.map((r,i)=>{
-    const pg=S.pages[i];
-    const reelImg=Math.round(num(pg.vids)*num(pg.ipv));
-    const imgDay=Math.round(num(pg.vids)*num(pg.ipv)+num(pg.imgs)+num(pg.anims)*2);
-    const vidHint = num(pg.vids)>0 ? `<div class="mhint">↳ about ${reelImg} images a day from reels (avg ${num(pg.ipv)} per reel)</div>` : '';
+    const pg=S.pages[i], lines=pg.lines||[];
+    const imgDay=Math.round(lines.reduce((s,ln)=>{
+      if(ln.type==="reel"||ln.type==="image") return s+num(ln.count)*num(ln.imgs);
+      if(ln.type==="anim") return s+num(ln.count)*2;
+      return s; },0));
+    const lineRows = lines.map((ln,li)=>lineRowHTML(ln,i,li)).join("") || '<div class="mhint">Nothing here yet. Add a content type below.</div>';
     return `<div class="pgcard">
       <div class="pchead">
         <input class="cell name" data-k="pages" data-i="${i}" data-f="name" value="${esc(pg.name)}">
         <label class="pcsel">Platform ${selHtml("cell",'data-k="pages" data-i="'+i+'" data-f="strategy"',STRATS,pg.strategy)}</label>
-        <label class="pcsel">Quality ${selHtml("cell",'data-k="pages" data-i="'+i+'" data-f="quality"',QUAL,pg.quality)}</label>
         <span class="x" data-del="pages" data-i="${i}" style="margin-left:auto">×</span>
       </div>
-      <div class="makes">
-        <div class="mrow"><label>Videos / reels a day</label><input class="cell" data-k="pages" data-i="${i}" data-f="vids" type="number" step="1" value="${num(pg.vids)}"></div>
-        ${vidHint}
-        <div class="mrow"><label>Image posts / banners a day</label><input class="cell" data-k="pages" data-i="${i}" data-f="imgs" type="number" step="1" value="${num(pg.imgs)}"></div>
-        <div class="mrow"><label>Animations a day</label><input class="cell" data-k="pages" data-i="${i}" data-f="anims" type="number" step="1" value="${num(pg.anims)}"></div>
-      </div>
-      <details class="adv" data-acc="page-adv-${i}"><summary>Fine-tune this Page</summary><div class="makes" style="margin-top:6px">
-        <div class="mrow"><label>Avg. images per reel</label><input class="cell" data-k="pages" data-i="${i}" data-f="ipv" type="number" step="1" value="${num(pg.ipv)}"></div>
-        <div class="mrow"><label>Reel length (s)</label><input class="cell" data-k="pages" data-i="${i}" data-f="vsec" type="number" step="1" value="${num(pg.vsec)}"></div>
-        <div class="mrow"><label>Animation length (s)</label><input class="cell" data-k="pages" data-i="${i}" data-f="asec" type="number" step="1" value="${num(pg.asec)}"></div>
-      </div></details>
+      <div class="makes">${lineRows}</div>
+      <div class="controls" style="margin:8px 0 0"><button class="act" data-addline="${i}">+ Add content type</button></div>
       <div class="pcfoot"><span>Images a day: <b>${imgDay}</b></span><span>Video-min / mo: <b>${n1(r.capMin)}</b></span><span>Cost / mo: <b>${money(r.total)}</b></span></div>
     </div>`;
   }).join("");
@@ -465,8 +532,10 @@ function renderAssump(){
     '<label>Good img $ <input data-k="assump" data-f="imgGood" type="number" step="0.001" value="'+S.assump.imgGood+'"></label>'+
     '<label>Better $ <input data-k="assump" data-f="imgBetter" type="number" step="0.001" value="'+S.assump.imgBetter+'"></label>'+
     '<label>Best $ <input data-k="assump" data-f="imgBest" type="number" step="0.001" value="'+S.assump.imgBest+'"></label>'+
-    '<label>Voice $/vid <input data-k="assump" data-f="voicePerVideo" type="number" step="0.01" value="'+S.assump.voicePerVideo+'"></label>'+
-    '<label title="Measured Jul 2026: a Good 5s animation added ~$0.35 fal and 0 cap minutes.">Anim $ each <input data-k="assump" data-f="animCost" type="number" step="0.01" value="'+S.assump.animCost+'"></label>'+
+    '<label title="Voice cost per minute of narration. Default is about $0.05 per 40s reel; ElevenLabs runs roughly 2x Fish.audio, so set it to your provider.">Voice $/min <input data-k="assump" data-f="voicePerMin" type="number" step="0.005" value="'+S.assump.voicePerMin+'"></label>'+
+    '<label title="Animation generation per second on your fal key. Measured Jul 2026: a Good 5s clip was about $0.35, plus its 2 source images.">Anim $/s <input data-k="assump" data-f="animPerSec" type="number" step="0.01" value="'+S.assump.animPerSec+'"></label>'+
+    '<label title="Lip-sync generation per second on your key. Rough default, set it to your provider\'s real rate.">Lip-sync $/s <input data-k="assump" data-f="lipsyncPerSec" type="number" step="0.01" value="'+S.assump.lipsyncPerSec+'"></label>'+
+    '<label title="Prompt-to-video generation per second on your key. Rough default, set it to your provider\'s real rate.">P2V $/s <input data-k="assump" data-f="p2vPerSec" type="number" step="0.01" value="'+S.assump.p2vPerSec+'"></label>'+
     '<label>Days/mo <input data-k="assump" data-f="days" type="number" step="0.1" value="'+S.assump.days+'"></label>'+
     '<label title="Animations run on your fal key, not the minute cap (measured). Toggle on only if your own costs show otherwise."><input data-k="assump" data-f="animCountsToCap" type="checkbox" '+(S.assump.animCountsToCap?"checked":"")+'> count animation toward cap</label>'+
     '<label title="Hands-free automation (running content on a schedule) needs the Plus or Pro plan. On by default, since this tool is for automating creators. Uncheck if you only make content by hand."><input data-need="1" type="checkbox" '+(S.needsAutomation?"checked":"")+'> I use automation</label>';
@@ -566,9 +635,10 @@ document.addEventListener("change", ev=>{
   const t=ev.target; if (!t.dataset) return;
   if (t.dataset.k){
     const k=t.dataset.k, f=t.dataset.f, i=t.dataset.i;
-    const INT_FIELDS={vids:1,imgs:1,anims:1,ipv:1,vsec:1,asec:1,includedMin:1,min:1};
+    const INT_FIELDS={count:1,imgs:1,sec:1,includedMin:1,min:1};
     let val; if (t.type==="checkbox") val=t.checked; else if (t.type==="number"){ val=t.value===""?0:+t.value; if (INT_FIELDS[f]) val=Math.max(0,Math.round(val)); } else val=t.value;
-    if (k==="assump"){ S.assump[f]=val; save("assump"); }
+    if (k==="lines"){ const pg=S.pages[+t.dataset.p]; const ln=pg&&pg.lines&&pg.lines[+i]; if(ln){ ln[f]=val; if(f==="type") lineTypeDefaults(ln); save("pages"); } }
+    else if (k==="assump"){ S.assump[f]=val; save("assump"); }
     else if (k==="actuals"){ S.actuals[f]=val; save("actuals"); }
     else if (k==="providers"){ S.actuals.providers[+i][f]=val; save("actuals"); }
     else if (k==="byPage"){ S.actuals.byPage[+i][f]=val; save("actuals"); }
@@ -579,14 +649,17 @@ document.addEventListener("change", ev=>{
   else if (t.dataset.need!=null){ S.needsAutomation=t.checked; save("needsAutomation"); renderAll(); }
 });
 document.addEventListener("click", ev=>{
-  const t=ev.target; if (!t.dataset || t.dataset.del==null) return;
+  const t=ev.target;
+  if (t.dataset && t.dataset.addline!=null){ const pg=S.pages[+t.dataset.addline]; if(pg){ (pg.lines=pg.lines||[]).push({type:"reel",count:1,sec:30,imgs:10,quality:"good"}); save("pages"); renderAll(); } return; }
+  if (!t.dataset || t.dataset.del==null) return;
   const k=t.dataset.del, i=+t.dataset.i;
-  if (k==="providers"){ S.actuals.providers.splice(i,1); save("actuals"); }
+  if (k==="lines"){ const pg=S.pages[+t.dataset.p]; if(pg&&pg.lines){ pg.lines.splice(i,1); save("pages"); } }
+  else if (k==="providers"){ S.actuals.providers.splice(i,1); save("actuals"); }
   else if (k==="byPage"){ S.actuals.byPage.splice(i,1); save("actuals"); }
   else { S[k].splice(i,1); if(k==="plans"&&S.current>=S.plans.length) S.current=0; save(k); if(k==="plans")save("current"); }
   renderAll();
 });
-document.getElementById("add-pg").onclick=()=>{ S.pages.push({name:"New Page",strategy:"faceless",quality:"good",vids:3,vsec:40,ipv:10,imgs:0,anims:0,asec:5}); save("pages"); renderAll(); };
+document.getElementById("add-pg").onclick=()=>{ S.pages.push({name:"New Page",strategy:"faceless",lines:[{type:"reel",count:3,sec:30,imgs:10,quality:"good"}]}); save("pages"); renderAll(); };
 document.getElementById("reset").onclick=()=>{ if(confirm("Reset everything to defaults?")) resetAll(); };
 document.getElementById("add-topup").onclick=()=>{ S.topups.push({min:0,price:0}); save("topups"); renderAll(); };
 document.getElementById("add-fixed").onclick=()=>{ S.fixed.push({name:"New cost",cost:0}); save("fixed"); renderAll(); };
@@ -613,7 +686,7 @@ document.getElementById("cl-send").onclick=()=>{
 };
 
 /* ---------- Check for updates ---------- */
-const LOCAL_VERSION="0.2.0";
+const LOCAL_VERSION="0.3.0";
 const UPDATE_RAW="https://raw.githubusercontent.com/mirajadesign/community-tools-for-simpli/main/plugins/cost-tracker-for-simpli/.claude-plugin/plugin.json";
 const UPDATE_CMD="/plugin marketplace update community-tools-for-simpli";
 const cmpVer=(a,b)=>{const pa=String(a).split("."),pb=String(b).split(".");for(let i=0;i<3;i++){const x=+pa[i]||0,y=+pb[i]||0;if(x>y)return 1;if(x<y)return -1;}return 0;};
@@ -653,7 +726,10 @@ function openWiz(startStep){
   let items=rows.map((f,idx)=>({ name:clean(f.name), cost:num(f.cost), ph:(idx===0?SCHED_PH:idx===1?AI_PH:"Name this cost") }));
   if(!items.length) items=[{name:"",cost:0,ph:SCHED_PH},{name:"",cost:0,ph:AI_PH}];
   W = { fillMode:(S.fillMode||"manual"), plan:S.current,
-    pages:S.pages.map(p=>({ name:p.name, platform:(p.strategy||"faceless"), kind:(num(p.imgs)>0&&num(p.vids)===0?"images":(num(p.vids)>0&&num(p.imgs)>0?"mix":"videos")), vids:Math.round(num(p.vids))||0, imgs:Math.round(num(p.imgs))||0 })),
+    pages:S.pages.map(p=>{ const L=p.lines||[];
+      const vids=Math.round(L.filter(l=>l.type!=="image").reduce((s,l)=>s+num(l.count),0));
+      const imgs=Math.round(L.filter(l=>l.type==="image").reduce((s,l)=>s+num(l.count),0));
+      return { name:p.name, platform:(p.strategy||"faceless"), kind:(imgs>0&&vids===0?"images":(vids>0&&imgs>0?"mix":"videos")), vids, imgs }; }),
     fixed:{ community:!!c0, communityCost:(c0?num(S.fixed[0].cost):27), items:items } };
   if (!W.pages.length) W.pages=[{name:"My Page",kind:"videos",vids:3,imgs:0}];
   // First run walks the whole flow from the intro. Re-opening the walkthrough skips
@@ -675,11 +751,14 @@ function wizTotalPreview(){
 function applyWiz(preview){
   S.current = W.plan;
   S.pages = W.pages.map(p=>{
-    const vids = p.kind==="images"?0 : num(p.vids);
-    const imgs = p.kind==="videos"?0 : num(p.imgs);
-    return { name:p.name||"Page", strategy: (p.platform||"faceless"), quality:"good", vids, vsec:40, ipv:10, imgs, anims:0, asec:5 };
+    const vids = p.kind==="images"?0 : Math.max(0,Math.round(num(p.vids)));
+    const imgs = p.kind==="videos"?0 : Math.max(0,Math.round(num(p.imgs)));
+    const lines=[];
+    if (vids>0 || !imgs) lines.push({type:"reel",count:vids,sec:30,imgs:10,quality:"good"});
+    if (imgs>0) lines.push({type:"image",count:imgs,sec:0,imgs:1,quality:"good"});
+    return { name:p.name||"Page", strategy:(p.platform||"faceless"), lines };
   });
-  if (!S.pages.length) S.pages=[{name:"My Page",strategy:"faceless",quality:"good",vids:3,vsec:40,ipv:10,imgs:0,anims:0,asec:5}];
+  if (!S.pages.length) S.pages=[{name:"My Page",strategy:"faceless",lines:[{type:"reel",count:3,sec:30,imgs:10,quality:"good"}]}];
   const citems=(W.fixed.items||[]).filter(it=> num(it.cost)>0 || String(it.name||"").trim()!=="");
   S.fixed = [
     {name:"Simpli Faceless Community", cost: W.fixed.community?num(W.fixed.communityCost):0}
@@ -711,7 +790,7 @@ function renderWiz(){
       '<div class="planpick">'+S.plans.map((p,i)=>'<div class="planbtn '+(W.plan===i?'sel':'')+'" onclick="wizPlan('+i+')"><div class="pn">'+esc(p.name)+'</div><div class="pp">'+money(num(p.price))+'</div><div class="pm">'+num(p.includedMin)+' video-min/mo'+(p.anim?' · animation':'')+'</div></div>').join('')+'</div>'+
       wizNav(!W.reopen);
   } else if (W.step===3){
-    body = prog+'<h3>What do you make?</h3><p class="q">Add each <b>Page</b> you run (a brand or account in Simpli Studio). Pick what it mostly posts and roughly how many per day. You can fine-tune later.</p>'+
+    body = prog+'<h3>What do you make?</h3><p class="q">Add each <b>Page</b> you run (a brand or account in Simpli Studio). Pick what it mostly posts and roughly how many per day. On the dashboard you can fine-tune each Page into exact content lines (lengths, quality, animation, lip-sync, prompt-to-video).</p>'+
       '<div id="wiz-pages">'+W.pages.map((p,i)=>wizPageRow(p,i)).join('')+'</div>'+
       '<div class="controls"><button class="act" onclick="wizAddPage()">+ Add Page</button></div>'+
       wizNav();

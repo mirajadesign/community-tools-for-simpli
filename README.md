@@ -40,6 +40,14 @@ No re-downloading files or chasing links, just pull the latest.
 
 ## What's new
 
+**v0.3.0**
+- Rebuilt Pages around **flexible content lines**. Instead of one averaged recipe per Page, each Page is now a list of lines (reel, image post, animation, lip-sync, prompt-to-video), each with its own count per day, length, images, and quality. A Page can finally express "one 60s reel, two 30s reels, and a Best-quality lip-sync special a day."
+- New per-length rates in Cost assumptions: voice per minute (about $0.05 per 40s reel; ElevenLabs roughly 2x Fish.audio), animation per second, and editable lip-sync and prompt-to-video per-second rates (rough defaults, set them from your provider).
+- Voice cost now scales with reel length instead of a flat per-video figure. Reels at the default 40s are unchanged; longer reels now price honestly.
+- Saved setups migrate automatically: existing Pages convert to content lines on first open, and customized voice or animation rates carry over. Nothing is lost.
+- The setup wizard keeps its quick videos/images/mix path and hands off to content lines on the dashboard for fine-tuning.
+- New reel lines default to 30 seconds (most reels run 15, 30, or 60s). Anything you already saved keeps its own lengths.
+
 **v0.2.0**
 - Renamed the tool **Tablio**, with a new logo and a redesigned header card.
 - Rebuilt the setup wizard: cleaner Page cards with a platform picker, flexible named cost lines, and an honest projection on the final step.
