@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cost Tracker for Simpli</title>
+<title>Cost Tracker for Building Your Faceless Empire</title>
 <style>
   :root{ color-scheme: light;
     --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --muted:#6b6862; --line:#e7e4de;
@@ -24,8 +24,9 @@
   .pill{ background:var(--accent-soft); color:var(--accent); font-size:10.5px; font-weight:600; padding:1px 8px; border-radius:99px; }
 
   /* Total hero */
-  .hero{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; margin:16px 0 14px; }
-  .hero .lead{ font-size:14px; color:var(--muted); }
+  .hero{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; margin:16px 0 14px; position:relative; }
+  .hero .pdf-btn{ position:absolute; top:14px; right:16px; }
+  .hero .lead{ font-size:14px; color:var(--muted); padding-right:104px; }
   .hero .lead select{ font:inherit; font-size:14px; font-weight:650; color:var(--ink); padding:2px 6px; border:1px solid var(--line); border-radius:7px; background:#fff; }
   .hero .total{ font-size:38px; font-weight:700; letter-spacing:-0.02em; margin:4px 0 2px; }
   .hero .total small{ font-size:16px; font-weight:500; color:var(--muted); }
@@ -49,6 +50,7 @@
   .totrow td{ font-weight:650; border-top:2px solid var(--line); }
   input.cell{ width:46px; padding:3px 4px; border:1px solid var(--line); border-radius:6px; font:inherit; font-size:12.5px; text-align:right; }
   input.name{ width:140px; text-align:left; }
+  details.adv input.cell, details.adv .assump input{ width:74px; }
   select.cell{ font:inherit; font-size:12px; padding:2px 4px; border:1px solid var(--line); border-radius:6px; background:#fff; }
   .x{ color:var(--danger); cursor:pointer; font-weight:700; padding:0 4px; }
   button.act{ padding:5px 11px; border:1px solid var(--line); background:var(--accent-soft); color:var(--accent); border-radius:7px; font:inherit; font-size:12.5px; cursor:pointer; }
@@ -63,10 +65,21 @@
   .callout.warn{ background:var(--warn-soft); color:#7c3a06; } .callout.ok{ background:var(--ok-soft); color:#145a2c; }
   .callout b{ font-weight:700; }
   .foot{ color:var(--muted); font-size:11.5px; margin-top:8px; text-align:center; }
-  .about{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:6px 16px; margin:14px 0; }
-  .about > summary{ cursor:pointer; font-size:13px; font-weight:600; color:var(--accent); padding:8px 0; }
-  .about .aboutbody{ font-size:12.5px; color:var(--muted); padding-bottom:8px; }
-  .about .aboutbody p{ margin:8px 0; } .about .aboutbody b{ color:var(--ink); }
+  .pgcard{ border:1px solid var(--line); border-radius:11px; padding:12px 14px; margin:10px 0; }
+  .pgcard .pchead{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .pgcard .pchead input.name{ flex:1 1 150px; min-width:120px; }
+  .pgcard .pcsel{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted); }
+  .pgcard .makes{ margin-top:8px; }
+  .pgcard .mrow{ display:flex; align-items:center; gap:10px; margin:5px 0; }
+  .pgcard .mrow label{ flex:1 1 auto; font-size:13px; }
+  .pgcard .mrow input.cell{ width:70px; }
+  .pgcard .mhint{ font-size:11.5px; color:var(--muted); margin:-2px 0 6px; }
+  .pgcard .pcfoot{ display:flex; gap:8px 16px; flex-wrap:wrap; margin-top:10px; padding-top:8px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted); }
+  .pgcard .pcfoot b{ color:var(--ink); font-weight:650; }
+  .about{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px 18px 12px; margin:14px 0; }
+  .about > summary{ cursor:pointer; font-size:13px; font-weight:600; color:var(--accent); padding:10px 0; }
+  .about .aboutbody{ font-size:12.5px; color:var(--muted); line-height:1.55; padding:2px 0 4px; }
+  .about .aboutbody p{ margin:10px 0; } .about .aboutbody p:first-child{ margin-top:2px; } .about .aboutbody b{ color:var(--ink); }
   @media print {
     .wiz-back{ display:none !important; }
     button, .controls, #open-wiz, #export-pdf, .x, .assump, details.adv > summary { display:none !important; }
@@ -74,6 +87,11 @@
     input, select{ border:none !important; -webkit-appearance:none; appearance:none; padding-left:0 !important; }
     section.block, .hero, .about{ break-inside:avoid; box-shadow:none; }
     .about, details.adv { display:none !important; }
+    .tw{ overflow:visible !important; }
+    table{ table-layout:fixed; width:100% !important; font-size:8.5px !important; }
+    th,td{ white-space:normal !important; padding:3px 2px !important; word-break:break-word; }
+    input.cell{ width:100% !important; font-size:8.5px !important; text-align:right; }
+    .wrap{ max-width:100% !important; }
   }
 
   /* Wizard */
@@ -89,6 +107,7 @@
   .rec-badge{ position:absolute; top:-9px; right:12px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; padding:2px 9px; border-radius:99px; letter-spacing:0.02em; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
   .planbtn.sel{ border-color:var(--accent); background:var(--accent-soft); }
   .planbtn .pn{ font-weight:650; } .planbtn .pp{ font-size:18px; font-weight:700; margin:3px 0; } .planbtn .pm{ font-size:11.5px; color:var(--muted); }
+  .planbtn .cardfoot{ margin-top:8px; padding-top:7px; border-top:1px solid var(--line); font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em; }
   #wiz-pages{ display:grid; grid-template-columns:1fr 140px 162px 22px; gap:8px; align-items:center; }
   .wlabels{ display:grid; grid-template-columns:1fr 140px 162px 22px; gap:8px; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.02em; margin-bottom:4px; }
   .wrow{ display:contents; }
@@ -96,6 +115,7 @@
   .wrow .pd{ display:flex; gap:5px; align-items:center; color:var(--muted); font-size:11.5px; }
   .wrow .pd input{ font:inherit; font-size:13px; padding:6px 6px; border:1px solid var(--line); border-radius:8px; background:#fff; width:42px; }
   .wrow .submeta{ font-size:11.5px; color:var(--muted); align-self:center; }
+  .wrow .mxl{ font-size:13px; color:var(--ink); align-self:center; padding-left:8px; }
   .wiz .cost-grid{ display:grid; grid-template-columns:max-content max-content; align-items:center; gap:11px 18px; margin:8px 0 4px; font-size:13px; }
   .wiz .cost-grid .fieldrow{ display:contents; }
   .wiz .cost-grid .amt{ white-space:nowrap; }
@@ -110,26 +130,17 @@
 <div class="wrap">
   <header class="top">
     <div>
-      <h1>Cost Tracker for Simpli</h1>
-      <div class="sub">What your Simpli Studio setup really costs each month — everything included.</div>
-    </div>
-    <div style="display:flex; gap:12px; align-items:center">
-      <button class="act" id="export-pdf">⬇ Export PDF</button>
-      <a class="btnlink" id="open-wiz" style="font-size:12.5px">↺ Setup walkthrough</a>
+      <h1>Cost Tracker for Building Your Faceless Empire</h1>
+      <div class="sub">The all-in monthly cost of building your faceless empire using Simpli Studio.</div>
     </div>
   </header>
-
-  <div style="font-size:11.5px;color:var(--muted);margin:0 2px 12px">Community Tools for Simpli · <b id="ver-label">v0.1.1</b> · <button id="chk-upd" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;padding:0;text-decoration:underline">Check for updates</button><span id="upd-result"></span></div>
+  <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--muted); margin:8px 2px 12px">
+    <a class="btnlink" id="open-wiz" style="font-size:12.5px">↺ Setup walkthrough</a>
+    <span><b id="ver-label">v0.1.2</b> · <button id="chk-upd" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;padding:0;text-decoration:underline">Check for updates</button><span id="upd-result"></span></span>
+  </div>
 
   <details class="about"><summary>❓ What is this? Is my data private?</summary>
-    <div class="aboutbody">
-      <p><b>What it is:</b> a free calculator to estimate and track what your Simpli Studio setup costs each month — the plan, your generation keys, and any other tools.</p>
-      <p><b>Does it take payment info?</b> No. There are no accounts, no logins, and no credit cards, and nothing is ever charged.</p>
-      <p><b>Where does my data go?</b> Nowhere. Everything runs in your own browser and is saved only on your device. Nothing is sent to us or anyone else — clearing your browser data clears it.</p>
-      <p><b>What is “Track actual spend”?</b> An optional place to type the numbers shown on your Simpli <b>Plan &amp; Billing</b> page, just to compare reality against the estimate. It does not connect to Simpli and takes no payment details.</p>
-      <p><b>Why can a video cost about $0?</b> In Simpli a video is built from images, so your fal key pays for the <b>images</b>; stitching them into the finished video is essentially free on your key (it draws on your plan’s video-minutes instead). That’s why this tool prices a video by the images it uses — set <b>Images/vid</b> and the cost follows.</p>
-      <p><b>Is this official?</b> No — it’s unofficial and community-made, not affiliated with, endorsed by, or released by Simpli Studio.</p>
-    </div>
+    <div class="aboutbody" id="about-body"></div>
   </details>
 
   <!-- TOTAL first -->
@@ -138,23 +149,15 @@
   <!-- Pages -->
   <section class="block">
     <h2><span class="step">1</span> Your Pages <span class="pill">what you make</span></h2>
-    <p class="blurb">A <b>Page</b> is one brand/account in Simpli (it shows in your Page switcher). Add a row per Page and set what it makes each day: narrated <b>videos</b>, static <b>image</b> posts / banners, and <b>animations</b>. Videos use your plan's monthly minute cap; images and animations run on your fal key only. A video’s dollar cost is really the images it’s built from (its frames) plus voice, so a video can read ~$0 on its own while the images it uses carry the spend.</p>
-    <div class="tw"><table>
-      <thead><tr>
-        <th class="l">Page</th><th>Type</th><th>Qual</th>
-        <th>Vid/day</th><th>Vid&nbsp;s</th><th>Img/vid</th>
-        <th>Img/day</th><th>Anim/day</th><th>Anim&nbsp;s</th>
-        <th>Min/mo</th><th>Cost/mo</th><th></th>
-      </tr></thead>
-      <tbody id="est-body"></tbody><tfoot id="est-foot"></tfoot>
-    </table></div>
+    <p class="blurb">A <b>Page</b> is one brand or account in Simpli (it shows in your Page switcher). Add a card for each Page and set what it makes each day. A reel is built from images (about 10 to 12 each), so its cost is really those images plus voice. Image posts, banners, and animations run on your fal key; reels also use your plan's monthly video-minutes. Other ways of making videos, like prompt-to-video or lip-sync, can cost differently.</p>
+    <div id="pages-cards"></div>
     <div class="controls"><button class="act" id="add-pg">+ Add Page</button><button class="act ghost" id="reset">Reset to defaults</button></div>
   </section>
 
   <!-- Other monthly costs -->
   <section class="block">
     <h2><span class="step">2</span> Other monthly costs <span class="pill">don't forget these</span></h2>
-    <p class="blurb">Flat monthly costs beyond Simpli, so the total is honest. Fill in what you actually pay — leave the rest at $0.</p>
+    <p class="blurb">Flat monthly costs beyond Simpli, so the total is honest. Fill in what you actually pay, and leave the rest at $0.</p>
     <div class="tw"><table><thead><tr><th class="l">Item</th><th>$/mo</th><th></th></tr></thead><tbody id="fixed-body"></tbody></table></div>
     <div class="controls"><button class="act" id="add-fixed">+ Add cost</button></div>
   </section>
@@ -162,7 +165,7 @@
   <!-- Advanced -->
   <section class="block">
     <h2><span class="step">3</span> Advanced settings <span class="pill">optional</span></h2>
-    <p class="blurb">Simpli's plans, top-up prices, and the per-item costs your keys charge. These have sensible defaults — only touch them if your own costs differ.</p>
+    <p class="blurb">Simpli's plans, top-up prices, and the per-item costs your keys charge. These have sensible defaults, so only touch them if your own costs differ.</p>
     <details class="adv"><summary>Cost assumptions (image / voice / animation)</summary>
       <div class="assump" id="assump"></div>
     </details>
@@ -179,7 +182,7 @@
   <!-- Actuals -->
   <section class="block">
     <h2>Track actual spend <span class="pill">optional</span></h2>
-    <p class="blurb">Optional — check the estimate against reality using your <b>Simpli Studio Plan &amp; Billing</b> page. This only covers your Simpli spend (minutes + key spend); your Pages and other tools above are always set by hand.</p>
+    <p class="blurb">Optional. Compare the estimate against your real Simpli spend. Claude can fill this in for you from your <b>Simpli Studio Plan &amp; Billing</b> page, or you can type it yourself. It only covers what Simpli itself bills you (plan minutes + key spend); your Pages and other tools above are always set by hand. Nothing is charged and no payment details are read.</p>
     <div id="actuals-callout"></div>
     <div class="assump" id="actuals-top"></div>
     <details class="adv"><summary>Spend by provider (this month / today)</summary>
@@ -192,7 +195,7 @@
     </details>
   </section>
 
-  <div class="foot"><b>Unofficial community tool — not affiliated with, endorsed by, or released by Simpli Studio.</b><br>Generation keys (fal / ElevenLabs / Fish.audio) are billed on your own accounts, separate from the Simpli subscription. Simpli meters video-minutes for narrated videos only; images and animations run on your keys. Nothing here leaves your browser.</div>
+  <div class="foot"><b>Unofficial community tool, not affiliated with, endorsed by, or released by Simpli Studio.</b><br>Generation keys (fal / ElevenLabs / Fish.audio) are billed on your own accounts, separate from the Simpli subscription. Simpli meters video-minutes for narrated videos only; images and animations run on your keys. It runs inside Claude or as a standalone page, and everything you enter is saved only on your device.</div>
 </div>
 
 <!-- Setup wizard -->
@@ -201,14 +204,24 @@
 <script>
 "use strict";
 const NS = "scct_";
-const STRATS = [ {v:"faceless",label:"Faceless · TikTok"}, {v:"social_fb",label:"Social · Facebook"}, {v:"social_ig",label:"Social · Instagram"}, {v:"other",label:"Other"} ];
+const STRATS = [ {v:"faceless",label:"TikTok"}, {v:"social_fb",label:"Facebook"}, {v:"social_ig",label:"Instagram"}, {v:"other",label:"Other"} ];
 const QUAL = [ {v:"good",label:"Good"}, {v:"better",label:"Better"}, {v:"best",label:"Best"} ];
+const FAQ_BODY =
+  '<p><b>What it is:</b> a free calculator to estimate and track what building your Faceless Empire costs each month, the plan, your generation keys, and any other tools.</p>'+
+  '<p><b>Does it take payment info?</b> No. There are no accounts, no logins, and no credit cards, and nothing is ever charged.</p>'+
+  '<p><b>Where does my data go?</b> Nowhere. Everything runs on your own device and is saved only there. Nothing is sent to us or anyone else, and clearing your saved data clears it.</p>'+
+  '<p><b>What is “Track actual spend”?</b> An optional place to record the numbers from your Simpli <b>Plan &amp; Billing</b> page so you can compare reality against the estimate. Type them yourself, or let the official <b>Claude for Chrome</b> extension read your billing page and fill them in for you. Either way it takes no payment details and nothing is charged.</p>'+
+  '<p><b>Why can a video cost about $0?</b> The common faceless method builds a video from images, so your fal key pays for the <b>images</b> and stitching them into the finished video is essentially free on your key (it uses your plan’s video-minutes instead). This tool prices that kind of video by the images it uses, so set <b>Images/vid</b> and the cost follows. Other methods, like a straight prompt-to-video or a lip-sync, can cost differently, so adjust the numbers if you use those.</p>'+
+  '<p><b>Is this official?</b> No, it’s unofficial and community-made, not affiliated with, endorsed by, or released by Simpli Studio.</p>';
+const FAQ_DETAILS = '<details class="about" style="margin:0 0 14px;padding:2px 12px">'+
+  '<summary style="padding:6px 0">❓ What is this? Is my data private?</summary>'+
+  '<div class="aboutbody">'+FAQ_BODY+'</div></details>';
 const D = {
-  plans: [ {name:"Starter",price:19.95,includedMin:45,anim:false,auto:false}, {name:"Automation",price:29.95,includedMin:70,anim:true,auto:true}, {name:"Pro",price:99.95,includedMin:275,anim:true,auto:true} ],
+  plans: [ {name:"Starter",price:19.95,includedMin:45,anim:false,auto:false}, {name:"Plus",price:29.95,includedMin:70,anim:true,auto:true}, {name:"Pro",price:99.95,includedMin:275,anim:true,auto:true} ],
   current: 1,
   needsAutomation: true,
   topups: [ {min:15,price:5.95},{min:30,price:10.95},{min:45,price:15.95},{min:60,price:20.95} ],
-  assump: { imgGood:0.0336, imgBetter:0.07, imgBest:0.15, voicePerVideo:0.10, animCost:0.35, days:30.4, animCountsToCap:false },
+  assump: { imgGood:0.034, imgBetter:0.08, imgBest:0.15, voicePerVideo:0.05, animCost:0.35, days:30.4, animCountsToCap:false },
   pages: [
     { name:"Page A", strategy:"faceless", quality:"good", vids:3, vsec:40, ipv:10, imgs:0, anims:0, asec:5 },
     { name:"Page B", strategy:"social_fb", quality:"good", vids:0, vsec:40, ipv:10, imgs:3, anims:0, asec:5 }
@@ -225,6 +238,7 @@ function loadState(){
   const s = JSON.parse(JSON.stringify(D));
   for (const k of Object.keys(D)){ try { const v = JSON.parse(localStorage.getItem(NS+k)); if (v!=null) s[k]=v; } catch(e){} }
   s.assump = Object.assign({}, D.assump, s.assump||{});
+  if (Array.isArray(s.plans)) s.plans.forEach(p=>{ if(p && p.name==="Automation") p.name="Plus"; }); // Simpli renamed Automation to Plus (Jul 2026)
   return s;
 }
 function save(k){ try { localStorage.setItem(NS+k, JSON.stringify(S[k])); } catch(e){} }
@@ -234,6 +248,10 @@ function money(n){ return "$" + (n==null||isNaN(n)?0:n).toLocaleString(undefined
 function n1(n){ return (n==null||isNaN(n)?0:n).toLocaleString(undefined,{maximumFractionDigits:1}); }
 function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function num(v){ return isNaN(+v)?0:+v; }
+function copyText(txt){
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); return true; } }catch(e){}
+  try{ const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.top='-1000px'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); const ok=document.execCommand('copy'); document.body.removeChild(ta); return ok; }catch(e){ return false; }
+}
 function imgCost(q){ return q==="best"?num(S.assump.imgBest) : q==="better"?num(S.assump.imgBetter) : num(S.assump.imgGood); }
 function selHtml(cls,dataAttrs,opts,val){ return '<select class="'+cls+'" '+dataAttrs+'>'+opts.map(o=>'<option value="'+o.v+'"'+(o.v===val?' selected':'')+'>'+esc(o.label)+'</option>').join('')+'</select>'; }
 
@@ -278,22 +296,23 @@ function renderHero(){
   const over = Math.max(0, e.totCap - cur.includedMin);
   const fixedItems = S.fixed.filter(f=>num(f.cost)>0);
   let brk = '';
-  brk += row("Simpli plan — "+esc(cur.name), money(cur.price));
+  brk += row("Simpli plan: "+esc(cur.name), money(cur.price));
   if (cur.top>0) brk += row("Top-up minutes ("+n1(over)+" over cap)", money(cur.top), true);
-  brk += row("fal — images + animation", money(e.totFal), true);
-  brk += row("Voice — ElevenLabs / Fish.audio", money(e.totVoice), true);
+  brk += row("fal: images + animation", money(e.totFal), true);
+  brk += row("Voice: ElevenLabs / Fish.audio", money(e.totVoice), true);
   fixedItems.forEach(f=> brk += row(esc(f.name), money(num(f.cost)), true));
   brk += '<div class="breakrow grand"><span class="bl">Total per month</span><span>'+money(e.curTotal)+'</span></div>';
   function row(label,val,sub){ return '<div class="breakrow"><span class="bl'+(sub?' sub':'')+'">'+label+'</span><span>'+val+'</span></div>'; }
 
   let rec='';
   if (over>0) rec += '<div class="callout warn" style="margin-top:12px">You’re <b>'+n1(over)+' video-min over</b> the '+esc(cur.name)+' cap ('+cur.includedMin+' min). That’s the <b>'+money(cur.top)+'/mo</b> in top-ups above.</div>';
-  if (e.reqAnim && !cur.anim) rec += '<div class="callout warn" style="margin-top:8px">A Page makes <b>animations</b>, which need the <b>Automation</b> or <b>Pro</b> plan — your current '+esc(cur.name)+' plan doesn’t include it.</div>';
-  if (e.reqAuto && !cur.auto) rec += '<div class="callout warn" style="margin-top:8px">You’re set to run <b>hands-free automation</b>, which needs the <b>Automation</b> or <b>Pro</b> plan — your current '+esc(cur.name)+' plan doesn’t include it.</div>';
-  if (cur.eligible && e.best.i!==S.current){ const sv=cur.allIn-e.best.allIn; if(sv>0.005) rec += '<div class="callout ok" style="margin-top:8px">💡 The <b>'+esc(e.best.name)+'</b> plan would be cheaper here — about <b>'+money(sv)+'/mo</b> less, and still does everything your Pages need.</div>'; }
+  if (e.reqAnim && !cur.anim) rec += '<div class="callout warn" style="margin-top:8px">A Page makes <b>animations</b>, which need the <b>Plus</b> or <b>Pro</b> plan, and your current '+esc(cur.name)+' plan doesn’t include it.</div>';
+  if (e.reqAuto && !cur.auto) rec += '<div class="callout warn" style="margin-top:8px">You’re set to run <b>hands-free automation</b>, which needs the <b>Plus</b> or <b>Pro</b> plan, and your current '+esc(cur.name)+' plan doesn’t include it.</div>';
+  if (cur.eligible && e.best.i!==S.current){ const sv=cur.allIn-e.best.allIn; if(sv>0.005) rec += '<div class="callout ok" style="margin-top:8px">💡 The <b>'+esc(e.best.name)+'</b> plan would be cheaper here, about <b>'+money(sv)+'/mo</b> less, and still does everything your Pages need.</div>'; }
   if (!cur.eligible) rec += '<div class="callout ok" style="margin-top:8px">The cheapest plan that actually covers your setup is <b>'+esc(e.best.name)+'</b> at <b>'+money(e.best.allIn)+'/mo</b>.</div>';
 
   document.getElementById("hero").innerHTML =
+    '<button class="act pdf-btn" onclick="window.print()">⬇ Export PDF</button>'+
     '<div class="lead">On the '+planSel+' plan, running '+S.pages.length+' Page'+(S.pages.length===1?'':'s')+', your estimated cost is</div>'+
     '<div class="total">'+money(e.curTotal)+' <small>/ month</small></div>'+
     '<div class="mins">'+n1(e.totCap)+' of '+cur.includedMin+' video-minutes used'+(over>0?' · '+n1(over)+' over':'')+'</div>'+
@@ -310,23 +329,32 @@ function renderHero(){
 function renderEstimate(){
   renderAssump();
   const e=compute();
-  document.getElementById("est-body").innerHTML = e.rows.map((r,i)=>{
+  document.getElementById("pages-cards").innerHTML = e.rows.map((r,i)=>{
     const pg=S.pages[i];
-    return `<tr>
-    <td class="l"><input class="cell name" data-k="pages" data-i="${i}" data-f="name" value="${esc(pg.name)}"></td>
-    <td>${selHtml("cell",'data-k="pages" data-i="'+i+'" data-f="strategy"',STRATS,pg.strategy)}</td>
-    <td>${selHtml("cell",'data-k="pages" data-i="'+i+'" data-f="quality"',QUAL,pg.quality)}</td>
-    <td><input class="cell" data-k="pages" data-i="${i}" data-f="vids" type="number" step="0.5" value="${num(pg.vids)}"></td>
-    <td><input class="cell" data-k="pages" data-i="${i}" data-f="vsec" type="number" step="1" value="${num(pg.vsec)}"></td>
-    <td><input class="cell" data-k="pages" data-i="${i}" data-f="ipv" type="number" step="0.5" value="${num(pg.ipv)}"></td>
-    <td><input class="cell" data-k="pages" data-i="${i}" data-f="imgs" type="number" step="0.5" value="${num(pg.imgs)}"></td>
-    <td><input class="cell" data-k="pages" data-i="${i}" data-f="anims" type="number" step="0.5" value="${num(pg.anims)}"></td>
-    <td><input class="cell" data-k="pages" data-i="${i}" data-f="asec" type="number" step="1" value="${num(pg.asec)}"></td>
-    <td>${n1(r.capMin)}</td><td><b>${money(r.total)}</b></td>
-    <td><span class="x" data-del="pages" data-i="${i}">×</span></td></tr>`;
+    const reelImg=Math.round(num(pg.vids)*num(pg.ipv));
+    const imgDay=Math.round(num(pg.vids)*num(pg.ipv)+num(pg.imgs)+num(pg.anims)*2);
+    const vidHint = num(pg.vids)>0 ? `<div class="mhint">↳ about ${reelImg} images a day from reels (${num(pg.ipv)} images per reel)</div>` : '';
+    return `<div class="pgcard">
+      <div class="pchead">
+        <input class="cell name" data-k="pages" data-i="${i}" data-f="name" value="${esc(pg.name)}">
+        <label class="pcsel">Platform ${selHtml("cell",'data-k="pages" data-i="'+i+'" data-f="strategy"',STRATS,pg.strategy)}</label>
+        <label class="pcsel">Quality ${selHtml("cell",'data-k="pages" data-i="'+i+'" data-f="quality"',QUAL,pg.quality)}</label>
+        <span class="x" data-del="pages" data-i="${i}" style="margin-left:auto">×</span>
+      </div>
+      <div class="makes">
+        <div class="mrow"><label>Videos / reels a day</label><input class="cell" data-k="pages" data-i="${i}" data-f="vids" type="number" step="1" value="${num(pg.vids)}"></div>
+        ${vidHint}
+        <div class="mrow"><label>Image posts / banners a day</label><input class="cell" data-k="pages" data-i="${i}" data-f="imgs" type="number" step="1" value="${num(pg.imgs)}"></div>
+        <div class="mrow"><label>Animations a day</label><input class="cell" data-k="pages" data-i="${i}" data-f="anims" type="number" step="1" value="${num(pg.anims)}"></div>
+      </div>
+      <details class="adv"><summary>Fine-tune this Page</summary><div class="assump" style="margin-top:6px">
+        <label>Images per reel <input class="cell" data-k="pages" data-i="${i}" data-f="ipv" type="number" step="1" value="${num(pg.ipv)}"></label>
+        <label>Reel length (s) <input class="cell" data-k="pages" data-i="${i}" data-f="vsec" type="number" step="1" value="${num(pg.vsec)}"></label>
+        <label>Animation length (s) <input class="cell" data-k="pages" data-i="${i}" data-f="asec" type="number" step="1" value="${num(pg.asec)}"></label>
+      </div></details>
+      <div class="pcfoot"><span>Images a day: <b>${imgDay}</b></span><span>Video-min / mo: <b>${n1(r.capMin)}</b></span><span>Cost / mo: <b>${money(r.total)}</b></span></div>
+    </div>`;
   }).join("");
-  const gt=e.rows.reduce((s,r)=>s+r.total,0);
-  document.getElementById("est-foot").innerHTML = `<tr class="totrow"><td class="l">All Pages</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>${n1(e.totCap)}</td><td><b>${money(gt)}</b></td><td></td></tr>`;
   renderHero();
 }
 function renderAssump(){
@@ -338,7 +366,7 @@ function renderAssump(){
     '<label title="Measured Jul 2026: a Good 5s animation added ~$0.35 fal and 0 cap minutes.">Anim $ each <input data-k="assump" data-f="animCost" type="number" step="0.01" value="'+S.assump.animCost+'"></label>'+
     '<label>Days/mo <input data-k="assump" data-f="days" type="number" step="0.1" value="'+S.assump.days+'"></label>'+
     '<label title="Animations run on your fal key, not the minute cap (measured). Toggle on only if your own costs show otherwise."><input data-k="assump" data-f="animCountsToCap" type="checkbox" '+(S.assump.animCountsToCap?"checked":"")+'> count animation toward cap</label>'+
-    '<label title="Hands-free automation (running content on a schedule) needs the Automation or Pro plan. On by default — this tool is for automating creators. Uncheck if you only make content by hand."><input data-need="1" type="checkbox" '+(S.needsAutomation?"checked":"")+'> I use automation</label>';
+    '<label title="Hands-free automation (running content on a schedule) needs the Plus or Pro plan. On by default, since this tool is for automating creators. Uncheck if you only make content by hand."><input data-need="1" type="checkbox" '+(S.needsAutomation?"checked":"")+'> I use automation</label>';
 }
 function planRows(){
   document.getElementById("plans-body").innerHTML = S.plans.map((p,i)=>`<tr>
@@ -385,15 +413,31 @@ function byPageRows(){
       <td><b>${money(proj)}</b></td><td><span class="x" data-del="byPage" data-i="${i}">×</span></td></tr>`;
   }).join("");
 }
+function claudeFillPrompt(){ return "Use the Claude for Chrome extension to open my Simpli Studio Plan & Billing page, read my current plan, video-minutes used, and my spend by provider (fal, ElevenLabs, Fish.audio) and by Page, then type those into this Cost Tracker dashboard's Track actual spend fields. Do not change my Pages or planned output; those are my estimate, not on the billing page."; }
+function assistBlockHTML(pfx){
+  return '<button class="act" onclick="startClaudeFillPfx(\''+pfx+'\')">Fill in with Claude</button> '+
+    '<button class="act ghost" onclick="showFillPromptPfx(\''+pfx+'\')">Show / copy the prompt</button> '+
+    '<span id="'+pfx+'-msg" style="font-size:11.5px;color:var(--ok)"></span>'+
+    '<textarea id="'+pfx+'-ta" readonly onclick="this.select()" style="display:none;width:100%;margin-top:8px;min-height:64px;font:inherit;font-size:12px;padding:8px;border:1px solid var(--line);border-radius:8px"></textarea>';
+}
+function revealPrompt(pfx){ const ta=document.getElementById(pfx+"-ta"); if(ta){ ta.value=claudeFillPrompt(); ta.style.display="block"; ta.focus(); ta.select(); } }
+function startClaudeFillPfx(pfx){
+  const msg=document.getElementById(pfx+"-msg"); let r="";
+  if (typeof sendPrompt==="function"){ try{ sendPrompt(claudeFillPrompt()); r="sent"; }catch(e){} }
+  if (r!=="sent"){ revealPrompt(pfx); r=copyText(claudeFillPrompt())?"copied":"shown"; }
+  if (msg) msg.textContent = r==="sent"?" sent to Claude ✓" : r==="copied"?" prompt copied, paste it into Claude ✓" : " select all in the box and copy (Cmd/Ctrl+C)";
+}
+function showFillPromptPfx(pfx){ revealPrompt(pfx); const ok=copyText(claudeFillPrompt()); const msg=document.getElementById(pfx+"-msg"); if(msg) msg.textContent = ok?" copied ✓ (or copy from the box)":" select all in the box and copy (Cmd/Ctrl+C)"; }
 function renderActualsMode(){
   const el=document.getElementById("actuals-callout"); if(!el) return;
-  if (S.fillMode==="assist"){
-    el.innerHTML='<div class="callout ok"><b>Auto-assist with Claude for Chrome</b><br>1. Install and enable the <b><a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn?hl=en-US&amp;utm_source=ext_sidebar" target="_blank" rel="noopener">Claude for Chrome</a></b> extension (Chrome Web Store).<br>2. Open your <b>Simpli Studio Plan &amp; Billing</b> page in a tab.<br>3. Ask Claude: <i>"read my Simpli Plan &amp; Billing page and fill in the cost tracker"</i> — it types your real numbers into the fields below.<br><button class="act" style="margin-top:8px" onclick="copyPrompt()">Copy the ask for Claude</button> <span id="copied" style="font-size:11.5px;color:var(--ok)"></span></div>';
-  } else { el.innerHTML=''; }
-}
-function copyPrompt(){
-  const txt='Open my Simpli Studio Plan & Billing page and fill in this cost tracker’s actual spend: video minutes used, spend by provider (fal, ElevenLabs, Fish.audio), and spend by Page.';
-  try { navigator.clipboard.writeText(txt); const c=document.getElementById("copied"); if(c){ c.textContent=" copied ✓"; setTimeout(()=>c.textContent="",2000); } } catch(e){}
+  el.innerHTML='<div class="callout ok"><b>Let Claude fill in your real spend</b><br>'+
+    'With the official <a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn" target="_blank" rel="noopener">Claude for Chrome</a> extension installed, Claude opens your <b>Simpli Studio Plan &amp; Billing</b> page in your browser, reads your real numbers, and types them into the fields below for you. You still set what each Page makes up top, since your planned output is not on the billing page. Nothing is charged and no payment details are read.'+
+    '<ol style="margin:8px 0 8px 18px;padding:0">'+
+      '<li>Install and enable the official Claude for Chrome extension (free to add; using it needs a paid Claude plan).</li>'+
+      '<li>Click <b>Fill in with Claude</b>, or copy the prompt and paste it into Claude.</li>'+
+      '<li>Claude reads your Simpli Plan &amp; Billing and fills your real spend into the fields below. Give them a quick check.</li>'+
+    '</ol>'+
+    assistBlockHTML('actuals')+'</div>';
 }
 function renderAll(){ renderEstimate(); planRows(); topupRows(); fixedRows(); actualsTop(); provRows(); byPageRows(); renderActualsMode(); }
 
@@ -429,10 +473,9 @@ document.getElementById("add-fixed").onclick=()=>{ S.fixed.push({name:"New cost"
 document.getElementById("add-prov").onclick=()=>{ S.actuals.providers.push({name:"New provider",month:0,today:0}); save("actuals"); renderAll(); };
 document.getElementById("add-page").onclick=()=>{ S.actuals.byPage.push({name:"New Page",today:0,month:0}); save("actuals"); renderAll(); };
 document.getElementById("open-wiz").onclick=()=>openWiz();
-document.getElementById("export-pdf").onclick=()=>window.print();
 
 /* ---------- Check for updates ---------- */
-const LOCAL_VERSION="0.1.1";
+const LOCAL_VERSION="0.1.2";
 const UPDATE_RAW="https://raw.githubusercontent.com/mirajadesign/community-tools-for-simpli/main/plugins/cost-tracker-for-simpli/.claude-plugin/plugin.json";
 const UPDATE_CMD="/plugin marketplace update community-tools-for-simpli";
 const cmpVer=(a,b)=>{const pa=String(a).split("."),pb=String(b).split(".");for(let i=0;i<3;i++){const x=+pa[i]||0,y=+pb[i]||0;if(x>y)return 1;if(x<y)return -1;}return 0;};
@@ -448,7 +491,7 @@ document.getElementById("chk-upd").onclick=()=>{
         '<button class="act" id="copy-upd">Copy update command</button>'+
         (typeof sendPrompt==="function"?' <button class="act" id="ask-upd">Ask Claude to update</button>':'')+
         '<div class="submeta" style="margin-top:4px">In Claude, run <code>'+UPDATE_CMD+'</code> then reload plugins.</div>';
-      const cp=document.getElementById("copy-upd"); if(cp)cp.onclick=()=>{ if(navigator.clipboard)navigator.clipboard.writeText(UPDATE_CMD); cp.textContent="Copied ✓"; };
+      const cp=document.getElementById("copy-upd"); if(cp)cp.onclick=()=>{ copyText(UPDATE_CMD); cp.textContent="Copied ✓"; };
       const ak=document.getElementById("ask-upd"); if(ak)ak.onclick=()=>{ sendPrompt("Please update the Community Tools for Simpli plugin to the latest version: run "+UPDATE_CMD+" and then reload plugins."); };
     } else if(c===0){ r.textContent=" · you’re on the latest version ("+LOCAL_VERSION+")."; }
     else { r.textContent=" · you’re ahead of the published version ("+LOCAL_VERSION+" vs "+latest+")."; }
@@ -501,10 +544,11 @@ function renderWiz(){
     body = '<h3>Let’s add up your total monthly cost</h3><p class="q">A few simple questions, about a minute. You can edit everything afterward, and skip anytime.</p>'+
       '<div class="nav"><span></span><div style="display:flex;gap:8px"><button class="act ghost" onclick="closeWiz()">Skip</button><button class="big" onclick="wizNext()">Start →</button></div></div>';
   } else if (W.step===1){
-    body = prog+'<h3>How do you want to fill in your <i>real</i> spend?</h3><p class="q">Two ways to get your actual Simpli spend numbers in. Either way you’ll still set up your Pages and other tools yourself in the next steps — those aren’t on the Plan &amp; Billing page.</p>'+
+    body = prog+'<h3>How do you want to set this up?</h3><p class="q">Two ways to build your dashboard. Let Claude do the heavy lifting, or set it up yourself in about a minute.</p>'+
+      FAQ_DETAILS+
       '<div class="planpick" style="grid-template-columns:1fr 1fr">'+
-        '<div class="planbtn '+(W.fillMode==="manual"?'sel':'')+'" onclick="wizMode(\'manual\')"><div class="pn">I’ll enter it manually</div><div class="pm" style="margin-top:5px">Type your spend numbers yourself, or skip them and just use the estimate. Works anywhere, no Claude needed.</div></div>'+
-        '<div class="planbtn '+(W.fillMode==="assist"?'sel':'')+'" onclick="wizMode(\'assist\')"><span class="rec-badge">Recommended</span><div class="pn">Auto-assist with Claude</div><div class="pm" style="margin-top:5px">Needs the <b><a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn?hl=en-US&amp;utm_source=ext_sidebar" target="_blank" rel="noopener" onclick="event.stopPropagation()">Claude for Chrome</a></b> extension, installed and enabled. Then ask Claude to read your <b>Simpli Studio Plan &amp; Billing</b> and fill your real spend. Re-run anytime for fresh numbers.</div></div>'+
+        '<div class="planbtn '+(W.fillMode==="assist"?'sel':'')+'" onclick="wizMode(\'assist\')"><span class="rec-badge">Easiest</span><div class="pn">Let Claude do it for you</div><div class="pm" style="margin-top:5px">With the <b>official <a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn" target="_blank" rel="noopener" onclick="event.stopPropagation()">Claude for Chrome</a></b> extension, Claude reads your <b>Simpli Plan &amp; Billing</b> and fills the dashboard in. Then just tell it what each Page makes.</div></div>'+
+        '<div class="planbtn '+(W.fillMode==="manual"?'sel':'')+'" onclick="wizMode(\'manual\')"><div class="pn">I’ll set it up myself</div><div class="pm" style="margin-top:5px">Answer a few quick questions: your plan, your Pages, and any other monthly costs. About a minute.</div></div>'+
       '</div>'+ wizNav();
   } else if (W.step===2){
     body = prog+'<h3>Which Simpli Studio plan are you on?</h3><p class="q">This sets your monthly fee and your included video-minutes.</p>'+
@@ -519,19 +563,32 @@ function renderWiz(){
   } else if (W.step===4){
     body = prog+'<h3>Any other monthly costs?</h3><p class="q">Flat monthly things beyond Simpli, so the total is real. Leave blank if none.</p>'+
       '<div class="cost-grid">'+
-      '<div class="fieldrow"><label><input type="checkbox" '+(W.fixed.community?'checked':'')+' onchange="W.fixed.community=this.checked; renderWiz()"> Simpli Community membership</label><span class="amt">$<input type="number" step="0.01" '+(W.fixed.community?'':'disabled')+' value="'+(W.fixed.community?num(W.fixed.communityCost):0)+'" onchange="W.fixed.communityCost=+this.value||0"> /mo</span></div>'+
+      '<div class="fieldrow"><label><input type="checkbox" '+(W.fixed.community?'checked':'')+' onchange="W.fixed.community=this.checked; if(this.checked)W.fixed.communityCost=27; renderWiz()"> Simpli Community membership</label><span class="amt">$<input type="number" step="0.01" '+(W.fixed.community?'':'disabled')+' value="'+(W.fixed.community?num(W.fixed.communityCost):0)+'" onchange="W.fixed.communityCost=+this.value||0"> /mo</span></div>'+
       '<div class="fieldrow"><span>Publishing / scheduler (Buffer, Postly…)</span><span class="amt">$<input type="number" step="0.01" value="'+num(W.fixed.scheduler)+'" onchange="W.fixed.scheduler=+this.value||0"> /mo</span></div>'+
       '<div class="fieldrow"><span>LLM / AI subscription (if you pay for one)</span><span class="amt">$<input type="number" step="0.01" value="'+num(W.fixed.llm)+'" onchange="W.fixed.llm=+this.value||0"> /mo</span></div>'+
       (W.fixed.extra||[]).map((x,xi)=>'<div class="fieldrow"><input type="text" value="'+esc(x.name)+'" placeholder="Other cost name" onchange="W.fixed.extra['+xi+'].name=this.value"><span class="amt">$<input type="number" step="0.01" value="'+num(x.cost)+'" onchange="W.fixed.extra['+xi+'].cost=+this.value||0"> /mo <span class="x" onclick="wizDelExtra('+xi+')">×</span></span></div>').join('')+
       '</div>'+
       '<div class="controls"><button class="act" onclick="wizAddExtra()">+ Add another cost</button></div>'+
       wizNav();
+  } else if (W.step==="claude"){
+    body = '<h3>Claude will set this up for you</h3>'+
+      '<p class="q">With the official <a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn" target="_blank" rel="noopener" onclick="event.stopPropagation()">Claude for Chrome</a> extension, Claude opens your <b>Simpli Studio Plan &amp; Billing</b> page, reads your plan and real spend, and fills this dashboard in for you. You’ll just tell Claude what each Page makes, since your planned output is not on the billing page.</p>'+
+      '<div class="callout ok" style="margin:0">'+
+        '<ol style="margin:2px 0 10px 18px;padding:0;line-height:1.7">'+
+          '<li>Install and enable the official Claude for Chrome extension (free to add; using it needs a paid Claude plan).</li>'+
+          '<li>Click <b>Fill in with Claude</b>, or copy the prompt and paste it into Claude.</li>'+
+          '<li>Claude opens your Simpli Plan &amp; Billing, reads it, and fills your numbers in. Give them a quick check.</li>'+
+        '</ol>'+
+        assistBlockHTML('wiz')+
+      '</div>'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-top:10px">Prefer to type it yourself? <a class="btnlink" onclick="W.fillMode=\'manual\'; W.step=2; renderWiz()">Set it up manually instead</a>.</div>'+
+      '<div class="nav"><button class="act ghost" onclick="wizBack()">← Back</button><button class="big" onclick="wizFinish()">See the dashboard →</button></div>';
   } else {
     const e=wizTotalPreview();
     const modeLine = W.fillMode==="assist"
-      ? 'Optional next step: open your Simpli Plan &amp; Billing page and ask Claude to fill in your real spend numbers. Nothing is charged — it just checks the estimate against reality.'
-      : 'Optional: type your real spend numbers anytime under “Track actual spend” to compare against this estimate. Nothing is charged, and nothing leaves your browser.';
-    body = '<h3>Here’s your estimate</h3><p class="q">Everything included — Simpli, your keys, and your other tools.</p>'+
+      ? 'When you’re ready, Claude can pull your real spend from your Simpli Plan and Billing page and fill it in for you. Look for the “Fill in with Claude” button in the Track actual spend section below.'
+      : 'Optional: type your real spend numbers anytime under “Track actual spend” to compare against this estimate. Nothing is charged, and nothing is sent anywhere.';
+    body = '<h3>Here’s your estimate</h3><p class="q">Everything included: Simpli, your keys, and your other tools.</p>'+
       '<div class="big-total">'+money(e.curTotal)+' <span style="font-size:15px;color:var(--muted)">/ month</span></div>'+
       '<div style="font-size:12.5px;color:var(--muted)">Simpli '+money(e.cur.price+e.cur.top)+' · your keys '+money(e.totKeys)+' · other tools '+money(e.totFixed)+'</div>'+
       (e.best.i!==W.plan && (e.cur.allIn-e.best.allIn)>0.005 ? '<div class="callout ok" style="margin-top:10px">💡 The '+esc(e.best.name)+' plan would be about '+money(e.cur.allIn-e.best.allIn)+'/mo cheaper for this.</div>' : '')+
@@ -549,26 +606,37 @@ function wizPageRow(p,i){
   const sel='<select onchange="wizKind('+i+',this.value)"><option value="videos"'+(p.kind==="videos"?' selected':'')+'>Videos</option><option value="images"'+(p.kind==="images"?' selected':'')+'>Image posts</option><option value="mix"'+(p.kind==="mix"?' selected':'')+'>A mix</option></select>';
   const x='<span class="x" onclick="wizDelPage('+i+')">×</span>';
   if (p.kind==="mix"){
-    const vids='<input type="number" step="0.5" title="videos per day" value="'+num(p.vids)+'" onchange="W.pages['+i+'].vids=+this.value||0">';
-    const imgs='<input type="number" step="0.5" title="image posts per day" value="'+num(p.imgs)+'" onchange="W.pages['+i+'].imgs=+this.value||0">';
+    const who='<span class="mxl">'+(esc(p.name)||'This Page')+'</span>';
+    const vin='<input type="number" step="1" value="'+num(p.vids)+'" onchange="W.pages['+i+'].vids=+this.value||0">';
+    const iin='<input type="number" step="1" value="'+num(p.imgs)+'" onchange="W.pages['+i+'].imgs=+this.value||0">';
     return '<div class="wrow">'+nm+sel+'<span></span>'+x+
-      '<span class="submeta">↳ videos / day</span><span></span>'+vids+'<span></span>'+
-      '<span class="submeta">↳ images / day</span><span></span>'+imgs+'<span></span></div>';
+      who+'<span class="mxl">videos</span>'+vin+'<span></span>'+
+      who+'<span class="mxl">images</span>'+iin+'<span></span></div>';
   }
   const field=(p.kind==="images")
-    ? '<input type="number" step="0.5" value="'+num(p.imgs)+'" onchange="W.pages['+i+'].imgs=+this.value||0">'
-    : '<input type="number" step="0.5" value="'+num(p.vids)+'" onchange="W.pages['+i+'].vids=+this.value||0">';
-  return '<div class="wrow">'+nm+sel+field+x+'</div>';
+    ? '<input type="number" step="1" value="'+num(p.imgs)+'" onchange="W.pages['+i+'].imgs=+this.value||0">'
+    : '<input type="number" step="1" value="'+num(p.vids)+'" onchange="W.pages['+i+'].vids=+this.value||0">';
+  const hint=(p.kind==="videos")
+    ? '<span class="submeta" style="grid-column:2 / -1;padding-top:2px">≈ '+Math.round(num(p.vids)*10)+' images a day, since each video is built from about 10</span>'
+    : '';
+  return '<div class="wrow">'+nm+sel+field+x+hint+'</div>';
 }
 function wizKind(i,val){ const p=W.pages[i]; if(val==="images"&&num(p.imgs)===0)p.imgs=num(p.vids)||3; if(val==="videos"&&num(p.vids)===0)p.vids=num(p.imgs)||3; if(val==="mix"){ if(num(p.vids)===0)p.vids=3; if(num(p.imgs)===0)p.imgs=3; } p.kind=val; renderWiz(); }
 function wizAddPage(){ W.pages.push({name:"",kind:"videos",vids:3,imgs:0}); renderWiz(); }
 function wizDelPage(i){ W.pages.splice(i,1); if(!W.pages.length) W.pages=[{name:"",kind:"videos",vids:3,imgs:0}]; renderWiz(); }
 function wizPlan(i){ W.plan=i; renderWiz(); }
-function wizNext(){ W.step=Math.min(5,W.step+1); renderWiz(); }
-function wizBack(){ W.step=Math.max(0,W.step-1); renderWiz(); }
+function wizNext(){
+  if (W.step===1){ W.step=(W.fillMode==="assist"?"claude":2); renderWiz(); return; }
+  W.step=Math.min(5,(W.step||0)+1); renderWiz();
+}
+function wizBack(){
+  if (W.step==="claude"){ W.step=1; renderWiz(); return; }
+  W.step=Math.max(0,(W.step||0)-1); renderWiz();
+}
 function wizFinish(){ applyWiz(false); closeWiz(); S.wizStep=0; save("wizStep"); renderAll(); }
 
 function init(){
+  var ab=document.getElementById("about-body"); if(ab) ab.innerHTML=FAQ_BODY;
   renderAll();
   if (!S.onboarded) openWiz(0);
 }

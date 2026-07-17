@@ -12,7 +12,7 @@ description: >-
   new Page before building it, compare Simpli plans, or decide when top-up
   minutes or a plan upgrade is worth it. Triggers on: "what does my page cost",
   "cost per page", "Simpli cost", "Simpli plan", "am I going to go over my
-  minutes", "should I upgrade to Automation or Pro", "top up minutes", "cost to
+  minutes", "should I upgrade to Plus or Pro", "top up minutes", "cost to
   run a Simpli page".
 ---
 
@@ -29,14 +29,14 @@ its own Style Pack and Brand Kit), and a Page can produce three content types:
 
 - **Videos** — narrated, faceless videos.
 - **Images** — standalone images, used as static posts or banners.
-- **Animations** — animate between a first and last frame (Automation / Pro plans).
+- **Animations** — animate between a first and last frame (Plus / Pro plans).
 
 ## The two cost layers (plus fixed tools)
 
 1. **The Simpli subscription** — a flat monthly fee that meters a **video-minute
-   cap** (Starter 45 · Automation 70 · Pro 275 as of writing). **Videos and
-   animations** consume the cap; **images do not**. Animation needs the
-   Automation or Pro plan.
+   cap** (Starter 45 · Plus 70 · Pro 275 as of writing; Plus is the plan Simpli
+   renamed from "Automation" in Jul 2026). **Videos and animations** consume the
+   cap; **images do not**. Animation needs the Plus or Pro plan.
 2. **Your generation keys** — billed on your own accounts, at cost:
    - **fal** for images and animation. Quality tier (**Good / Better / Best**)
      sets the per-image cost.

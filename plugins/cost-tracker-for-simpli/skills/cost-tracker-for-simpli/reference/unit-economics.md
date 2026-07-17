@@ -21,14 +21,14 @@ Each plan includes a monthly pool of rendered video-minutes:
 | Plan | Price | Included video min | Animation? |
 |---|---|---|---|
 | Starter | $19.95 | 45 | no |
-| Automation | $29.95 | 70 | yes |
+| Plus (formerly Automation) | $29.95 | 70 | yes |
 | Pro | $99.95 | 275 | yes |
 
 **Videos** consume the cap; **animations and images do not** — both run on your
 fal key only. (Measured Jul 2026: a Good 5s animation added ~$0.35 of fal spend
 and **zero** video-minutes to the cap.) Over the cap you buy top-up minutes,
-which roll over. Animation requires the Automation or Pro plan. (Prices/caps as
-of writing — editable in the tool.)
+which roll over. Animation requires the Plus or Pro plan. (Prices/caps as
+of writing, editable in the tool.)
 
 **2. Your generation keys — billed per generation on your own accounts (BYOK).**
 - **Images / animation frames:** fal. Quality tier sets the per-image cost —
@@ -46,8 +46,8 @@ anything else flat. The dashboard seeds these as editable prompts.
 
 | Input | Default | Notes |
 |---|---|---|
-| Image cost — Good / Better / Best | $0.0336 / $0.07 / $0.15 | set from your fal bill |
-| Voice per video | $0.10 | ElevenLabs / Fish.audio, per-character |
+| Image cost, Good / Better / Best | $0.034 / $0.08 / $0.15 | Simpli published (Jul 2026); set from your fal bill |
+| Voice per video | $0.05 | ElevenLabs, measured ~$0.05/reel (Jul 2026); Fish.audio ~half |
 | Animation cost each | $0.35 | Good, 5s, silent — measured; sound ~2×, 10s ~2×, Best (Seedance) more |
 | Images per video | ~10 | one image per script line is common |
 | Average video length | 40 s | your *target*; see the swing variable |

@@ -1,8 +1,8 @@
 # Cost Tracker for Simpli
 
-A free, plug-and-play cost calculator for **Simpli Studio**. It tells you what
-each **Page** actually costs to run per month — all in — across every content
-type, and when it's time to buy top-up minutes or move up a plan.
+A free, plug-and-play cost calculator for **Simpli Studio**. It tells you the
+all-in monthly cost of running each **Page**, not just your Simpli bill, across
+every content type, and when it's time to buy top-up minutes or move up a plan.
 
 Made for the Simpli community. No account, no sign-up, nothing leaves your browser.
 
@@ -88,8 +88,8 @@ so it's worth getting right.
 
 ## Advanced: let Claude fill it for you (Claude for Chrome)
 
-If you use the **Claude for Chrome** extension and you're logged into Simpli, you
-don't have to type the actuals by hand. Open your Simpli **Plan & billing** page
+If you use the **official Claude for Chrome** extension and you're logged into
+Simpli, you don't have to type the actuals by hand. Open your Simpli **Plan & billing** page
 in one tab and this dashboard in another, and ask Claude to *"read my Simpli
 billing and fill in the cost tracker."* It's a **one-time assisted fill** you
 re-run whenever you want fresh numbers — not a live feed. Simpli has no billing
