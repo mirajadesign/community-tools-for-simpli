@@ -40,6 +40,9 @@ No re-downloading files or chasing links, just pull the latest.
 
 ## What's new
 
+**v0.1.3**
+- When you fill in your actual spend, the dashboard now shows it against your estimate: an "actual so far" line up top and a minutes-used-vs-cap and key-spend summary in the Track actual spend section.
+
 **v0.1.2**
 - Redesigned "Your Pages" into a card per Page, dropping the wide table and horizontal scroll, with plain-language rows and a live reel-to-images estimate.
 - The setup walkthrough now forks: pick "Let Claude do it" and it hands off to the Fill-in-with-Claude flow, or set it up yourself in a quick guided pass.

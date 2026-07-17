@@ -136,7 +136,7 @@
   </header>
   <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--muted); margin:8px 2px 12px">
     <a class="btnlink" id="open-wiz" style="font-size:12.5px">↺ Setup walkthrough</a>
-    <span><b id="ver-label">v0.1.2</b> · <button id="chk-upd" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;padding:0;text-decoration:underline">Check for updates</button><span id="upd-result"></span></span>
+    <span><b id="ver-label">v0.1.3</b> · <button id="chk-upd" style="background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;padding:0;text-decoration:underline">Check for updates</button><span id="upd-result"></span></span>
   </div>
 
   <details class="about"><summary>❓ What is this? Is my data private?</summary>
@@ -185,6 +185,7 @@
     <p class="blurb">Optional. Compare the estimate against your real Simpli spend. Claude can fill this in for you from your <b>Simpli Studio Plan &amp; Billing</b> page, or you can type it yourself. It only covers what Simpli itself bills you (plan minutes + key spend); your Pages and other tools above are always set by hand. Nothing is charged and no payment details are read.</p>
     <div id="actuals-callout"></div>
     <div class="assump" id="actuals-top"></div>
+    <div id="actuals-summary"></div>
     <details class="adv"><summary>Spend by provider (this month / today)</summary>
       <div class="tw"><table><thead><tr><th class="l">Provider</th><th>This month $</th><th>Today $</th><th></th></tr></thead><tbody id="prov-body"></tbody></table></div>
       <div class="controls"><button class="act" id="add-prov">+ Add provider</button></div>
@@ -292,6 +293,7 @@ function compute(){
 function renderHero(){
   const e=compute();
   const cur=e.cur;
+  const aUsed=num(S.actuals.usedMin), aKeys=S.actuals.providers.reduce((s,p)=>s+num(p.month),0), hasAct=(aUsed>0||aKeys>0);
   const planSel = '<select data-curplan="1">'+S.plans.map((p,i)=>'<option value="'+i+'"'+(i===S.current?" selected":"")+'>'+esc(p.name)+'</option>').join("")+'</select>';
   const over = Math.max(0, e.totCap - cur.includedMin);
   const fixedItems = S.fixed.filter(f=>num(f.cost)>0);
@@ -315,7 +317,8 @@ function renderHero(){
     '<button class="act pdf-btn" onclick="window.print()">⬇ Export PDF</button>'+
     '<div class="lead">On the '+planSel+' plan, running '+S.pages.length+' Page'+(S.pages.length===1?'':'s')+', your estimated cost is</div>'+
     '<div class="total">'+money(e.curTotal)+' <small>/ month</small></div>'+
-    '<div class="mins">'+n1(e.totCap)+' of '+cur.includedMin+' video-minutes used'+(over>0?' · '+n1(over)+' over':'')+'</div>'+
+    '<div class="mins">Estimated '+n1(e.totCap)+' of '+cur.includedMin+' video-minutes'+(over>0?' · '+n1(over)+' over':'')+'</div>'+
+    (hasAct?'<div class="mins" style="color:var(--accent)">Actual so far: '+n1(aUsed)+' of '+cur.includedMin+' min · '+money(aKeys)+' keys</div>':'')+
     '<div class="groups">'+
       '<div class="g"><div class="gl">Simpli subscription</div><div class="gv">'+money(cur.price+cur.top)+'</div><div class="gd">plan'+(cur.top>0?' + top-ups':'')+'</div></div>'+
       '<div class="g"><div class="gl">Your keys</div><div class="gv">'+money(e.totKeys)+'</div><div class="gd">fal + voice, your accounts</div></div>'+
@@ -439,7 +442,23 @@ function renderActualsMode(){
     '</ol>'+
     assistBlockHTML('actuals')+'</div>';
 }
-function renderAll(){ renderEstimate(); planRows(); topupRows(); fixedRows(); actualsTop(); provRows(); byPageRows(); renderActualsMode(); }
+function renderActualsSummary(){
+  const el=document.getElementById("actuals-summary"); if(!el) return;
+  const A=S.actuals, used=num(A.usedMin);
+  const provMonth=A.providers.reduce((s,p)=>s+num(p.month),0), provToday=A.providers.reduce((s,p)=>s+num(p.today),0);
+  if (used<=0 && provMonth<=0){ el.innerHTML=""; return; }
+  const e=compute(), cur=e.cur, cap=cur?num(cur.includedMin):0;
+  const over=Math.max(0, used-cap), pct=cap>0?Math.min(100,Math.round(used/cap*100)):0;
+  let html='<div class="callout '+(over>0?'warn':'ok')+'" style="margin:2px 0 10px">';
+  if (cap>0){
+    html+='<b>Minutes so far:</b> '+n1(used)+' of '+cap+' used ('+pct+'% of your '+esc(cur.name)+' cap)'+
+      (over>0?'. Already <b>'+n1(over)+' over</b>, '+money(minTopup(over))+' in top-ups.':'.')+
+      '<div style="height:7px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px"><span style="display:block;height:100%;width:'+pct+'%;background:'+(over>0?'var(--warn)':'var(--accent)')+'"></span></div>';
+  }
+  html+='<div style="margin-top:8px"><b>Key spend so far:</b> '+money(provMonth)+' this month (today '+money(provToday)+'). Your full-month estimate above is '+money(e.totKeys)+'.</div>';
+  el.innerHTML=html+'</div>';
+}
+function renderAll(){ renderEstimate(); planRows(); topupRows(); fixedRows(); actualsTop(); provRows(); byPageRows(); renderActualsSummary(); renderActualsMode(); }
 
 /* ---------- events ---------- */
 document.addEventListener("change", ev=>{
@@ -475,7 +494,7 @@ document.getElementById("add-page").onclick=()=>{ S.actuals.byPage.push({name:"N
 document.getElementById("open-wiz").onclick=()=>openWiz();
 
 /* ---------- Check for updates ---------- */
-const LOCAL_VERSION="0.1.2";
+const LOCAL_VERSION="0.1.3";
 const UPDATE_RAW="https://raw.githubusercontent.com/mirajadesign/community-tools-for-simpli/main/plugins/cost-tracker-for-simpli/.claude-plugin/plugin.json";
 const UPDATE_CMD="/plugin marketplace update community-tools-for-simpli";
 const cmpVer=(a,b)=>{const pa=String(a).split("."),pb=String(b).split(".");for(let i=0;i<3;i++){const x=+pa[i]||0,y=+pb[i]||0;if(x>y)return 1;if(x<y)return -1;}return 0;};
