@@ -24,7 +24,7 @@ description: >-
 A plug-and-play cost dashboard for **Simpli Studio**. It answers one question
 honestly: **what does each Page cost to run per month, all in?**
 
-It follows Simpli's own model. In Simpli, a **Page** is a brand/channel (it has
+It follows Simpli's own model. In Simpli, a **Page** is a brand or account (it has
 its own Style Pack and Brand Kit), and a Page can produce three content types:
 
 - **Videos** — narrated, faceless videos.

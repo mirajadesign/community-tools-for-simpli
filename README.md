@@ -1,14 +1,14 @@
 # Community Tools for Simpli
 
-A free marketplace of Claude plugins for people who create with **Simpli Studio**.
-Add it once and you can install (and keep updated) any tool inside it.
+A free, community-made collection of Claude plugins for people who create with **Simpli Studio**.
+Add it once, for free, and you can install (and keep updated) any tool inside it.
 
 > **Unofficial and community-made.** Community Tools for Simpli is **not affiliated
 > with, endorsed by, or released by Simpli Studio or its creator.** It's built by a
 > fellow user to help other creators. "Simpli Studio" is used only to describe what
 > the tools work with.
 
-## Plugins in this marketplace
+## Plugins in this collection
 
 | Plugin | What it does |
 |---|---|
@@ -16,7 +16,7 @@ Add it once and you can install (and keep updated) any tool inside it.
 
 ## Install (one time)
 
-In Claude (Cowork or Claude Code), add this marketplace, then install the plugin:
+In Claude (Cowork or Claude Code), add it for free, then install the plugin:
 
 ```
 /plugin marketplace add mirajadesign/community-tools-for-simpli
@@ -39,6 +39,14 @@ is published here:
 No re-downloading files or chasing links, just pull the latest.
 
 ## What's new
+
+**v0.2.0**
+- Renamed the tool **Tablio**, with a new logo and a redesigned header card.
+- Rebuilt the setup wizard: cleaner Page cards with a platform picker, flexible named cost lines, and an honest projection on the final step.
+- Simplified Track actual spend and moved it up front: one clear readout, a compact Claude helper, spend-by-Page that mirrors your Pages, and spend-by-provider open by default.
+- Added an "Update dashboard with Claude" action with a copy/send prompt popup.
+- Whole-number video/image fields, aligned Page inputs, accordions that stay open while editing, and "average images per reel" wording.
+- Standardized on "Simpli Studio" naming, refreshed the footer, and friendlier type and color throughout.
 
 **v0.1.3**
 - When you fill in your actual spend, the dashboard now shows it against your estimate: an "actual so far" line up top and a minutes-used-vs-cap and key-spend summary in the Track actual spend section.

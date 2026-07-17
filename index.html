@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cost Tracker for Simpli Studio: free, private cost calculator for faceless creators</title>
+<meta name="description" content="A free, private cost tracker for Simpli Studio creators. See your all-in monthly cost, catch when you'll blow your minute cap, and track what you actually spend. Nothing leaves your device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#ffffff; --ink:#1c1b19; --muted:#6b6862; --line:#e7e4de;
+    --accent:#0369a1; --accent-2:#0ea5b7; --accent-soft:#e6f0f7; --ok:#15803d;
+    --warm1:#fff7ee; --warm2:#eaf3f8;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{ margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:960px; margin:0 auto; padding:0 20px; }
+  a{ color:var(--accent); text-decoration:none; }
+
+  /* Hero */
+  .hero{ background:linear-gradient(160deg,var(--warm1) 0%, var(--warm2) 100%);
+    border-bottom:1px solid var(--line); padding:14px 0 64px; text-align:center; }
+  .brand{ display:inline-flex; align-items:center; gap:8px; margin:26px 0 22px;
+    font-weight:800; font-size:14px; letter-spacing:0.02em; color:var(--accent);
+    background:#fff; border:1px solid var(--line); padding:7px 15px; border-radius:99px; box-shadow:0 1px 2px rgba(0,0,0,0.03); }
+  .brand .dot{ width:9px; height:9px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); }
+  .brand-logo{ display:inline-flex; align-items:center; gap:11px; margin:26px 0 6px; }
+  .brand-logo svg{ display:block; }
+  .brand-logo .logo-word{ font-weight:900; font-size:29px; letter-spacing:-0.02em; color:#223040; line-height:1; }
+  h1{ font-size:clamp(30px,5.4vw,50px); line-height:1.08; font-weight:900; letter-spacing:-0.02em;
+    margin:8px auto 0; max-width:760px; }
+  h1 .hl{ background:linear-gradient(120deg,var(--accent),var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lead{ font-size:clamp(16px,2.3vw,20px); color:var(--muted); max-width:620px; margin:18px auto 0; }
+  .cta-row{ margin:30px 0 14px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:9px; font-weight:800; font-size:17px;
+    padding:15px 30px; border-radius:14px; cursor:pointer; border:none; white-space:nowrap; transition:transform .08s ease, box-shadow .15s ease; }
+  .btn.primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff;
+    box-shadow:0 8px 22px rgba(3,105,161,0.28); }
+  .btn.primary:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(3,105,161,0.34); }
+  .btn.ghost{ background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+  .btn.ghost:hover{ border-color:var(--accent); color:var(--accent); }
+  .micro{ color:var(--muted); font-size:14px; font-weight:600; margin-top:6px; }
+  .micro b{ color:var(--ink); }
+
+  section{ padding:52px 0; }
+  .sec-title{ text-align:center; font-size:clamp(23px,3.4vw,30px); font-weight:900; letter-spacing:-0.01em; margin:0 0 6px; }
+  .sec-sub{ text-align:center; color:var(--muted); font-size:16px; max-width:560px; margin:0 auto 34px; }
+
+  /* Feature cards */
+  .grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  @media (max-width:720px){ .grid{ grid-template-columns:1fr; } }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px 22px; min-width:0;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03); }
+  .emoji{ font-size:30px; line-height:1; display:inline-block; margin-bottom:10px; }
+  .card h3{ margin:0 0 6px; font-size:18px; font-weight:800; }
+  .card h3 .tag{ font-size:11px; font-weight:800; color:var(--accent); background:var(--accent-soft); padding:2px 9px; border-radius:99px; margin-left:7px; vertical-align:middle; letter-spacing:0.01em; }
+  .card p{ margin:0; color:var(--muted); font-size:15px; }
+  .cardnote{ margin:12px 0 0 !important; font-size:13px; color:var(--muted); border-top:1px solid var(--line); padding-top:11px; }
+  .cardnote b{ color:var(--ink); font-weight:700; }
+
+  /* Two ways */
+  .ways{ background:linear-gradient(180deg,transparent, #fbfaf8); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .way{ display:flex; flex-direction:column; }
+  .way .num{ width:34px; height:34px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center;
+    font-weight:900; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent-2)); margin-bottom:12px; }
+  .code{ background:#0f1720; color:#e6edf3; border-radius:12px; padding:14px 16px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13.5px; line-height:1.8; margin-top:12px; overflow-x:auto; max-width:100%; white-space:pre; }
+  .code .cmt{ color:#7d8896; }
+  .way .btn{ align-self:flex-start; margin-top:14px; font-size:15px; padding:11px 20px; }
+
+  /* Support */
+  .support-inner{ background:var(--card); border:1px solid var(--line); border-radius:20px; padding:30px 22px; text-align:center; }
+  .support-inner h3{ margin:0 0 6px; font-size:21px; font-weight:900; }
+  .support-inner p{ color:var(--muted); max-width:620px; margin:0 auto 16px; }
+  .venmo{ display:inline-flex; align-items:center; gap:8px; font-weight:800; background:#3d95ce; color:#fff;
+    padding:12px 22px; border-radius:12px; }
+  .venmo:hover{ filter:brightness(1.05); }
+
+  /* Footer */
+  .why{ padding-bottom:16px; }
+  footer{ padding:8px 0 46px; text-align:center; color:var(--muted); font-size:13.5px; }
+  .disclaimer{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px 20px; max-width:640px; margin:0 auto 18px; font-size:13.5px; }
+  .disclaimer b{ color:var(--ink); }
+  footer a{ font-weight:700; }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="wrap">
+      <div class="brand-logo"><svg viewBox="0 0 44 44" width="36" height="36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="13" y="8" width="24" height="29" rx="6" fill="#cfe9f7"/><rect x="9" y="9" width="24" height="29" rx="6" fill="#93cdeb"/><rect x="5" y="8" width="26" height="30" rx="6" fill="url(#tblg)"/><rect x="10" y="25" width="4" height="8" rx="2" fill="#fff"/><rect x="16" y="21" width="4" height="12" rx="2" fill="#fff"/><rect x="22" y="17" width="4" height="16" rx="2" fill="#fff"/><defs><linearGradient id="tblg" x1="5" y1="8" x2="31" y2="38" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5b7"/><stop offset="1" stop-color="#0369a1"/></linearGradient></defs></svg><span class="logo-word">Tablio</span></div>
+      <h1>Know exactly what your<br><span class="hl">faceless empire</span> costs to run.</h1>
+      <div class="cta-row">
+        <a class="btn primary" href="./plugins/cost-tracker-for-simpli/skills/cost-tracker-for-simpli/assets/cost-dashboard.html">Open the cost tracker →</a>
+        <a class="btn ghost" href="#claude">Use it inside Claude</a>
+      </div>
+      <div class="micro"><b>Free</b> · No sign-up · Runs right in your browser</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <h2 class="sec-title">Your whole cost picture, in one place</h2>
+      <p class="sec-sub">It pulls the whole picture together, your Simpli Studio plan, your fal and voice keys, and your other tools, into one clear monthly number, so you can see where you stand and plan ahead as you grow. See what you'll spend at the volume you want to make, and keep it inside a budget.</p>
+      <div class="grid">
+        <div class="card">
+          <span class="emoji">💰</span>
+          <h3>Your all-in monthly cost</h3>
+          <p>Your Simpli Studio plan, your fal and voice keys, and every other tool you use, rolled into one clear number per month.</p>
+        </div>
+        <div class="card">
+          <span class="emoji">⏱️</span>
+          <h3>Plan around your minutes</h3>
+          <p>See how your reel volume maps to your plan's video minutes, so you can plan top-ups or a plan change on your own terms.</p>
+        </div>
+        <div class="card">
+          <span class="emoji">📊</span>
+          <h3>Estimate next to reality</h3>
+          <p>Simpli Studio shows you what you've spent so far. This shows the other half: what you'll spend at the volume you're aiming for, so you can plan ahead and check reality against your estimate.</p>
+        </div>
+        <div class="card">
+          <span class="emoji">🔒</span>
+          <h3>Completely private</h3>
+          <p>No accounts, no logins, nothing charged. Everything runs in your browser and is saved only on your device.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ways" id="claude">
+    <div class="wrap">
+      <h2 class="sec-title">Two ways to use it</h2>
+      <p class="sec-sub">Both are free and both stay on your machine. The only difference is how much of the work the tool does for you.</p>
+      <div class="grid">
+        <div class="card way">
+          <span class="num">1</span>
+          <h3>Open it in your browser</h3>
+          <p>Click the button and it opens in any browser. Set up your Pages and you have your numbers. Nothing to install, no account, and it works entirely on its own. This is the full calculator.</p>
+          <a class="btn primary" href="./plugins/cost-tracker-for-simpli/skills/cost-tracker-for-simpli/assets/cost-dashboard.html">Open the cost tracker →</a>
+        </div>
+        <div class="card way">
+          <span class="num">2</span>
+          <h3>Use it inside Claude <span class="tag">does more</span></h3>
+          <p>Everything the browser version does, plus Claude sets it up for you, keeps it updated on its own, and can read your Simpli Studio billing page to fill in your real spend automatically. If you already use Claude, this is the stronger option. Paste these two lines in, both free:</p>
+          <div class="code"><span class="cmt"># add it for free, then install</span>
+/plugin marketplace add mirajadesign/community-tools-for-simpli
+/plugin install cost-tracker-for-simpli</div>
+          <p class="cardnote"><b>Needs a paid Claude plan.</b> The automatic spend fill runs on the official Claude for Chrome extension, so you'll need that installed and turned on.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why">
+    <div class="wrap">
+      <div class="support-inner">
+        <h3>Why I made Tablio</h3>
+        <p>I built Tablio because I needed it. I've spent real money testing tools for faceless AI content, and the monthly cost gets scattered across subscriptions, video-minute limits, image generation, AI voice, API usage, and all the extras.</p>
+        <p>James has built an amazing platform with Simpli Studio. But I also wanted one clear place to see what the rest of my content creation stack costs each month, plan for the volume I want to create, and compare that estimate with what I actually spent.</p>
+        <p>Tablio gave me the full picture I was missing, so I decided to share it. I'm just another creator learning as I go, building useful things, and giving something back to a great community. I hope it helps!</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="disclaimer">
+        Tablio is an independent tool built by a member of the Simpli Faceless community. It works alongside Simpli Studio to help creators estimate and track their full content-production costs. Tablio is not an official product of Simpli Faceless or Simpli Studio.
+      </div>
+      Made with <span style="color:#e0245e">♥</span> by <b>MIRAJA Design</b> · <a href="https://github.com/mirajadesign/community-tools-for-simpli" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+  </footer>
+
+</body>
+</html>

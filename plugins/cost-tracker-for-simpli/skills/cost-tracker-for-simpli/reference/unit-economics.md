@@ -6,8 +6,8 @@ billing before you trust a number.
 
 ## Simpli's model in one paragraph
 
-In Simpli Studio a **Page** is a brand/channel with its own Style Pack and Brand
-Kit. A Page produces three content types — **videos** (narrated), **images**
+In Simpli Studio a **Page** is a brand or account with its own Style Pack and Brand
+Kit. A Page produces three content types: **videos** (narrated), **images**
 (standalone posts / banners), and **animations** (first/last frame + animate
 between). Simpli charges a **flat monthly plan fee** and meters a monthly
 **video-minute cap**; the actual generation runs on **your own keys** (fal for

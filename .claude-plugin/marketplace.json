@@ -8,7 +8,7 @@
       "name": "cost-tracker-for-simpli",
       "source": "./plugins/cost-tracker-for-simpli",
       "description": "The all-in monthly cost of running your Simpli Studio content, not just your Simpli bill: videos, images, animations, plan minutes, keys, and fixed tools. Unofficial community tool.",
-      "version": "0.1.3",
+      "version": "0.2.0",
       "author": {
         "name": "MIRAJA Design"
       }
